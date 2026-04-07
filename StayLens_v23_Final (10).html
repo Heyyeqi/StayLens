@@ -1,0 +1,4854 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="color-scheme" content="light" />
+<title>StayLens — Full Judgement Flow</title>
+<style>
+  /* ═══════════════════════════════════════════════════════════
+     STAYLENS — Typography Design System v6
+     目标：文华东方的优雅克制 × Google 的清晰效率
+     ═══════════════════════════════════════════════════════════
+
+     FONT ARCHITECTURE（三字体系统）
+     ────────────────────────────────────────────────────────
+     --font-display  Playfair Display + Noto Serif SC
+                     → 封面品牌 H1，仅此一处
+                     → 理由：无可替代的奢华气质落点
+
+     --font-heading  Cormorant Garamond + Noto Serif SC
+                     → 所有模块一级标题（.title .dimtitle .group-title 等）
+                     → 理由：文华东方式的"精致但不装"
+                             比 Playfair 更轻盈，比无衬线更有温度
+                             中文回落 Noto Serif SC，气质一致
+
+     --font-body     Tenor Sans + Noto Sans SC
+                     → 所有正文、表单、说明、按钮、标签
+                     → 理由：Tenor Sans 专为奢侈品牌场景设计
+                             与 Cormorant 同属人文主义字体谱系
+                             笔划有粗细对比，修长比例，无科技感
+
+     --font-mono     DM Mono
+                     → 所有数字评分（scorepill, dim-chip-score,
+                       summary-big, dimavg strong, big-level）
+                     → 理由：数字用等宽字体，精准感 + 视觉区隔
+                             避免与标题和正文字体的模糊感混淆
+
+     TYPE SCALE（严格，禁止感觉调整）
+     ────────────────────────────────────────────────────────
+     --ts-09 :  9px  → 极微：范围标注 1.0 · 3.0 · 5.0
+     --ts-11 : 11px  → 微型：kicker / badge / label
+     --ts-13 : 13px  → 正文基础：body / hint / anchor / desc
+     --ts-15 : 15px  → 强调正文：item title / option title
+     --ts-17 : 17px  → 卡片标题：group/choice/result card title
+     --ts-22 : 22px  → 模块标题：dimtitle / section title（Cormorant）
+     --ts-28 : 28px  → 大数字辅助 / dimavg
+     --ts-44 : 44px  → 总评大数字 / result big level
+
+     WEIGHT MAP
+     ────────────────────────────────────────────────────────
+     Jost 300   → placeholder、极次要说明
+     Jost 400   → 正文 body、desc、hint
+     Jost 500   → 次级强调：option label、button、chip
+     Jost 600   → 首要强调：kicker（大写字母本身已有重量）
+     Cormorant  → 用 500（它的 500 已相当于正常 sans 的 700）
+     DM Mono    → 400（等宽字体不需要加粗，字形本身有力量）
+     禁止任何地方出现 700+
+
+     LETTER-SPACING 哲学
+     ────────────────────────────────────────────────────────
+     Cormorant 标题：-0.01em（衬线字体微收，更精致）
+     Tenor 正文：    0 到 +0.015em（人文字体需要微开，透气感）
+     Tenor 小号：    +0.01em 到 +0.02em（小字号配合大写更好看）
+     Kicker：        +0.15em（大写字母必须拉开，这是风格的来源）
+     DM Mono 数字：  -0.03em 到 -0.05em（数字需要紧凑感）
+
+     LINE-HEIGHT 哲学
+     ────────────────────────────────────────────────────────
+     Cormorant 标题：1.15～1.22（衬线字体行高不能过大）
+     Tenor 正文：    1.72～1.82（中英混排充分透气）
+     Anchor/微型：   1.60～1.65（密集信息区适当收紧）
+     数字：          1（大数字独占，不需要行高）
+     ═══════════════════════════════════════════════════════════ */
+
+  :root {
+    /* ── 颜色系统（保持原有温暖色调）── */
+    --bg:           #F6F2EB;
+    --surface:      #FFFFFF;
+    --surface-2:    rgba(246,242,235,.88);
+    --ink:          #1a1612;
+    --ink-2:        #5c5248;
+    --ink-3:        #9a9088;
+    --gold:         #8C7A5B;
+    --gold-soft:    rgba(140,122,91,.07);
+    --gold-line:    rgba(140,122,91,.20);
+    --line:         rgba(231,225,216,.90);
+    --line-soft:    rgba(231,225,216,.70);
+    --ok:           #4a7a52;
+    --ok-soft:      rgba(74,122,82,.09);
+    --warn:         #8a6830;
+    --warn-soft:    rgba(138,104,48,.09);
+    --danger:       #b04040;
+    --danger-soft:  rgba(176,64,64,.09);
+    --shadow:       0 1px 3px rgba(26,22,18,.03), 0 12px 36px rgba(26,22,18,.05);
+
+    /* ── 字体系统（三字体架构）── */
+    --font-display: "Playfair Display", "Noto Serif SC", Georgia, serif;
+    --font-heading: "Cormorant Garamond", "Noto Serif SC", Georgia, serif;
+    --font-body:    "Tenor Sans", "Noto Serif SC", "Songti SC", Georgia, serif;
+    --font-mono:    "DM Mono", "SF Mono", "Menlo", "Consolas", monospace;
+
+    /* ── 字号体系（严格 8 档）── */
+    --ts-09:  9px;
+    --ts-11: 11px;
+    --ts-13: 13px;
+    --ts-15: 15px;
+    --ts-17: 17px;
+    --ts-22: 22px;
+    --ts-28: 28px;
+    --ts-44: 44px;
+
+    /* ── 数字渲染 ── */
+    --num-feat: tabular-nums lining-nums;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #F6F2EB !important;
+    color-scheme: light;
+  }
+
+  /* ── Form typography hard lock ── */
+  input,
+  select,
+  textarea {
+    font-family: var(--font-body) !important;
+    color: var(--ink) !important;
+  }
+
+  input::placeholder,
+  select::placeholder,
+  textarea::placeholder {
+    font-family: var(--font-body) !important;
+    color: var(--ink-3) !important;
+    opacity: 1;
+  }
+
+
+  body {
+    font-family: var(--font-body);
+    font-size: var(--ts-13);
+    font-weight: 400;
+    line-height: 1.72;
+    letter-spacing: 0.005em;
+    color: var(--ink);
+    background: #F6F2EB;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  .app{max-width:1080px;margin:0 auto;padding:26px 18px 44px}
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px}
+  .back{display:none}
+
+  /* Step label — kicker tier */
+  .step{
+    font-family: var(--font-body);
+    font-size: var(--ts-11);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .progress{flex:1;display:grid;grid-template-columns:repeat(10,1fr);gap:8px;max-width:700px}
+  .bar{height:4px;border-radius:0;background:#e6ddd1;position:relative;overflow:hidden}
+  .bar.active{background:var(--gold)}
+  .bar.partial::after{content:'';position:absolute;left:0;top:0;bottom:0;width:calc(var(--fill, 0) * 100%);background:var(--gold);opacity:.45;border-radius:0}
+  .topbar.cover-topbar{display:none !important;margin:0 !important}
+  .topbar.cover-topbar .step,
+  .topbar.cover-topbar .progress{display:none}
+  #pageHost{opacity:1}
+  .stage-shell-enter{animation:stageFadeIn .28s ease both}
+  .stage-shell-exit{animation:stageFadeOut .18s ease both}
+  @keyframes stageFadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes stageFadeOut{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-4px)}}
+
+  .hero,.card,.main,.summary-overall,.summary-dims,.result-main,.result-card,.result-wide,.group-card,.choice-card,.copy-box{
+    background:var(--surface);
+    border:0.5px solid rgba(26,22,18,.09);
+    box-shadow:0 1px 3px rgba(26,22,18,.03), 0 10px 32px rgba(26,22,18,.055);
+  }
+  .hero,.main,.result-main,.result-wide,.copy-box{border-radius:0}
+  .summary-overall,.summary-dims,.result-card,.group-card,.choice-card{border-radius:0}
+
+  .hero{padding:36px 44px 30px;margin-bottom:16px}
+
+  /* ── Kicker：Jost 600，字距拉开至 0.15em，这是整套系统的风格锚点 ── */
+  .kicker,
+  .card-kicker,
+  .dimtag,
+  .itembadge,
+  .summary-label,
+  .mode-subtitle,
+  .mode-section-label,
+  .subcheck-title {
+    font-family: var(--font-body) !important;
+    font-size: var(--ts-11) !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.16em !important;
+    text-transform: uppercase !important;
+    color: rgba(154,135,110,.78) !important;
+    line-height: 1.0 !important;
+    margin-bottom: 8px;
+    display: block;
+  }
+  /* Gold-tinted kicker for top-level page section kickers */
+  .kicker { color: rgba(154,127,82,.82) !important; }
+
+  /* ── Section title: Cormorant，模块标题层 ── */
+  .title {
+    font-family: var(--font-heading);
+    font-size: var(--ts-22);
+    line-height: 1.45;
+    letter-spacing: -0.01em;
+    margin: 0 0 10px;
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  /* ── 正文描述：Jost 400，中英混排最佳参数 ── */
+  .desc {
+    font-family: var(--font-body);
+    font-size: var(--ts-13);
+    line-height: 1.82;
+    color: rgba(92,82,72,.78);
+    margin: 0;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+  }
+
+  /* ── Hint box ── */
+  .hint {
+    margin-top: 18px;
+    padding: 4px 0 4px 16px;
+    border-radius: 0;
+    background: transparent;
+    border: none;
+    border-left: 0.5px solid rgba(154,127,82,.35);
+    font-family: var(--font-body);
+    font-size: var(--ts-13);
+    line-height: 1.78;
+    color: rgba(92,82,72,.58);
+    font-weight: 400;
+    letter-spacing: 0.01em;
+  }
+
+  .summary-strip{display:grid;grid-template-columns:240px 1fr;gap:14px;margin-bottom:16px}
+  .summary-overall{padding:22px 24px}
+  .summary-dims{padding:20px 22px}
+
+  .summary-score-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+
+  /* ── 总评大分：DM Mono，数字精准感 ── */
+  .summary-big {
+    font-family: var(--font-mono);
+    font-size: var(--ts-44);
+    line-height: 1;
+    letter-spacing: -0.04em;
+    font-weight: 400;
+    color: var(--ink);
+    font-variant-numeric: var(--num-feat);
+  }
+
+  .summary-text {
+    font-family: var(--font-body);
+    font-size: var(--ts-13);
+    line-height: 1.75;
+    color: rgba(92,82,72,.70);
+    font-weight: 400;
+    letter-spacing: 0.01em;
+  }
+
+  .dim-chip-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+  .dim-chip{display:flex;flex-direction:column;gap:10px;padding:14px 14px 12px;border-radius:0;background:rgba(255,255,255,.78);border:0.5px solid var(--line-soft);min-height:92px}
+  .dim-chip-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+
+  /* dim-chip-index uses kicker styles via .kicker class extension */
+  .dim-chip-index {
+    font-family: var(--font-body);
+    font-size: var(--ts-11);
+    letter-spacing: .10em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+
+  /* ── Dimension chip name：Cormorant ── */
+  .dim-chip-name {
+    font-family: var(--font-heading);
+    font-size: 14px;
+    line-height: 1.28;
+    color: var(--ink);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+
+  /* ── 维度分数：DM Mono ── */
+  .dim-chip-score {
+    font-family: var(--font-mono);
+    font-size: 22px;
+    line-height: 1;
+    color: var(--ink);
+    font-weight: 400;
+    letter-spacing: -0.03em;
+    flex: none;
+    font-variant-numeric: var(--num-feat);
+  }
+
+  .dim-chip-bar{height:5px;border-radius:0;background:rgba(28,24,20,.06);overflow:hidden}
+  .dim-chip-fill{height:100%;border-radius:0;background:linear-gradient(90deg, rgba(140,122,91,.35), rgba(140,122,91,.92));transition:width .3s ease}
+
+  /* ── 维度 chip 三态 ── */
+  /* 当前：金色边框高亮，背景微暖 */
+  .dim-chip.dim-chip-active {
+    border-color: rgba(140,122,91,.55) !important;
+    background: rgba(246,242,235,.98) !important;
+    box-shadow: 0 0 0 1px rgba(140,122,91,.18);
+    transition: all .2s ease;
+  }
+  .dim-chip.dim-chip-active .dim-chip-index { color: var(--gold) !important; }
+  .dim-chip.dim-chip-active .dim-chip-name  { color: var(--ink) !important; }
+  .dim-chip.dim-chip-active .dim-chip-score { color: var(--gold) !important; }
+  .dim-chip.dim-chip-active .dim-chip-fill  { background: linear-gradient(90deg, rgba(140,122,91,.55), rgba(140,122,91,1)); }
+
+  /* 已完成：深色系，表示有结果 */
+  .dim-chip.dim-chip-visited {
+    background: rgba(255,255,255,.92) !important;
+    border-color: rgba(26,22,18,.10) !important;
+    transition: all .2s ease;
+  }
+  .dim-chip.dim-chip-visited .dim-chip-index { color: rgba(92,82,72,.55); }
+  .dim-chip.dim-chip-visited .dim-chip-name  { color: var(--ink); }
+  .dim-chip.dim-chip-visited .dim-chip-score { color: var(--ink); }
+
+  /* 未开始：整体淡出，进度条变灰 */
+  .dim-chip.dim-chip-pending {
+    background: rgba(255,255,255,.50) !important;
+    border-color: rgba(26,22,18,.05) !important;
+    transition: all .2s ease;
+  }
+  .dim-chip.dim-chip-pending .dim-chip-index { color: rgba(92,82,72,.30); }
+  .dim-chip.dim-chip-pending .dim-chip-name  { color: rgba(26,22,18,.35); }
+  .dim-chip.dim-chip-pending .dim-chip-score { color: rgba(26,22,18,.28); }
+  .dim-chip.dim-chip-pending .dim-chip-fill  { background: rgba(28,24,20,.08); }
+
+  /* ── Verdict pill：Jost 500 ── */
+  .verdict {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 12px;
+    border-radius: 0;
+    font-family: var(--font-body);
+    font-size: var(--ts-13);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+  }
+  .verdict.high{color:var(--ok);background:var(--ok-soft);border:1px solid rgba(79,122,87,.18)}
+  .verdict.mid{color:var(--warn);background:var(--warn-soft);border:1px solid rgba(139,106,52,.18)}
+  .verdict.low{color:var(--danger);background:var(--danger-soft);border:1px solid rgba(181,74,66,.18)}
+
+  .main{overflow:hidden}
+  .head{padding:40px 44px 30px;border-bottom:0.5px solid var(--line-soft);background:rgba(246,242,235,.72)}
+
+  /* ── Dimension tag (kicker tier) ── */
+  .dimtag {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 0;
+    font-family: var(--font-body) !important;
+    font-size: var(--ts-11) !important;
+    letter-spacing: .14em !important;
+    text-transform: uppercase !important;
+    font-weight: 500 !important;
+    color: var(--ink-3) !important;
+    background: rgba(140,122,91,.08);
+    border: 0.5px solid var(--gold-line);
+    margin-bottom: 12px;
+  }
+
+  /* ── Dimension title: Cormorant，维度页主标题 ── */
+  .dimtitle {
+    font-family: var(--font-heading);
+    font-size: 32px;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    margin: 0 0 10px;
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  /* 维度核心判断说明 — Jost 300，静谧感 */
+  .dimcore {
+    font-family: var(--font-body);
+    font-size: var(--ts-13);
+    line-height: 1.80;
+    color: rgba(92,82,72,.70);
+    max-width: 760px;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+  }
+
+  .items{padding:18px 44px 6px}
+  .item{padding:30px 0 26px;border-bottom:1px solid rgba(26,22,18,.028)}
+  .item:first-child{padding-top:22px}
+  .item:last-child{border-bottom:none;padding-bottom:4px}
+
+  /* ── Item badge (kicker tier) ── */
+  .itembadge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 8px;
+    border-radius: 0;
+    font-family: var(--font-body) !important;
+    font-size: var(--ts-11) !important;
+    letter-spacing: .12em !important;
+    text-transform: uppercase !important;
+    color: var(--ink-3) !important;
+    border: 0.5px solid var(--line-soft);
+    background: rgba(246,242,235,.88);
+    font-weight: 500 !important;
+    margin-bottom: 8px;
+  }
+
+  /* ── Item title：Cormorant，二级指标标题层 ── */
+  .itemtitle {
+    font-family: var(--font-heading);
+    font-size: 20px;
+    line-height: 1.28;
+    letter-spacing: -0.01em;
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  /* ── Item hint：Jost 300，视觉休息层 ── */
+  .itemhint {
+    font-family: var(--font-body);
+    font-size: var(--ts-13);
+    line-height: 1.80;
+    color: rgba(92,82,72,.72);
+    margin-top: 5px;
+    max-width: 720px;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+  }
+
+  .scoreline{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px}
+
+  /* ── 子项评分胶囊：DM Mono，无色块，仅边框 ── */
+  .scorepill {
+    min-width: 52px;
+    text-align: center;
+    padding: 5px 12px;
+    border-radius: 0;
+    font-family: var(--font-mono);
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--ink);
+    background: transparent;
+    border: 0.5px solid rgba(140,122,91,.35);
+    font-variant-numeric: var(--num-feat);
+    letter-spacing: -0.05em;
+  }
+
+  .rangewrap{margin-top:8px}
+
+  /* ── Range labels (12px) ── */
+  .labels {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-body);
+    font-size: var(--ts-13);
+    color: var(--ink-3);
+    margin-bottom: 8px;
+    gap: 8px;
+    font-weight: 400;
+    letter-spacing: -.003em;
+  }
+
+  input[type="range"]{width:100%;accent-color:var(--gold);cursor:pointer}
+
+  /* ── Anchor cards：精简，描述用 300 减轻视觉负担 ── */
+  .anchors{margin-top:14px;display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+  .anchor {
+    background: rgba(246,242,235,.88);
+    border: 0.5px solid var(--line-soft);
+    border-radius: 0;
+    padding: 10px 11px;
+    font-family: var(--font-body);
+    font-size: var(--ts-13);
+    line-height: 1.62;
+    color: rgba(92,82,72,.68);
+    font-weight: 400;
+    letter-spacing: 0.01em;
+  }
+  /* Anchor score label — DM Mono */
+  .anchor strong {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: var(--ts-13);
+    font-weight: 400;
+    color: var(--gold);
+    margin-bottom: 3px;
+    letter-spacing: -0.02em;
+    font-variant-numeric: var(--num-feat);
+  }
+
+  .section-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 40px;padding:0 44px 24px}
+  .group-card,.choice-card,.result-card{padding:18px 18px 16px}
+
+  /* ── Card titles: Cormorant，卡片一级标题 ── */
+  .group-title,
+  .choice-title,
+  .result-card h3,
+  .result-wide h3 {
+    font-family: var(--font-heading);
+    font-size: var(--ts-22);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    margin: 0 0 8px;
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  /* Card desc — Jost 300 */
+  .group-desc,
+  .choice-desc,
+  .result-note,
+  .choice-helper {
+    font-family: var(--font-body);
+    font-size: var(--ts-13);
+    line-height: 1.78;
+    color: rgba(92,82,72,.70);
+    margin: 0 0 14px;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+  }
+
+  .check-list,.radio-list{display:grid;gap:10px}
+
+  /* ── Option rows ── */
+  label.option {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: 0;
+    background: rgba(246,242,235,.70);
+    border: 0.5px solid var(--line-soft);
+    cursor: pointer;
+    transition: border-color .15s ease, background .15s ease;
+  }
+  label.option:hover {
+    border-color: var(--gold-line);
+    background: rgba(246,242,235,.95);
+  }
+  label.option input{margin-top:3px;accent-color:var(--gold)}
+
+  /* Option title — Cormorant，选项标题 */
+  .option strong {
+    display: block;
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.28;
+    color: var(--ink);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+  /* Option desc — Jost 300，轻盈辅助 */
+  .option span {
+    display: block;
+    font-family: var(--font-body);
+    font-size: var(--ts-13);
+    line-height: 1.75;
+    color: rgba(92,82,72,.65);
+    margin-top: 2px;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+  }
+
+  .rule-box {
+    margin-top: 12px;
+    padding: 10px 14px;
+    border-radius: 0;
+    background: rgba(140,122,91,.06);
+    border: 0.5px solid rgba(140,122,91,.14);
+    font-family: var(--font-body);
+    font-size: var(--ts-13);
+    line-height: 1.72;
+    color: rgba(92,82,72,.70);
+    font-weight: 400;
+    letter-spacing: 0.01em;
+  }
+  .rule-box strong {
+    font-family: var(--font-heading);
+    font-size: 15px;
+    color: var(--ink);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+
+  .foot{padding:20px 44px 28px;border-top:1px solid var(--line-soft);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:rgba(246,242,235,.72)}
+
+  /* ── Dimavg label：Jost 400 ── */
+  .dimavg {
+    font-family: var(--font-body);
+    font-size: var(--ts-13);
+    color: rgba(92,82,72,.72);
+    font-weight: 400;
+    letter-spacing: 0em;
+  }
+  /* Number in dimavg — DM Mono */
+  .dimavg strong {
+    font-family: var(--font-mono);
+    font-size: var(--ts-28);
+    line-height: 1;
+    color: var(--ink);
+    letter-spacing: -0.04em;
+    margin-left: 8px;
+    font-weight: 400;
+    font-variant-numeric: var(--num-feat);
+    vertical-align: baseline;
+  }
+
+  .actions{display:flex;gap:10px;flex-wrap:wrap}
+
+  /* ── Buttons：Tenor Sans, 12px, 0.15em, 0.5px border ── */
+  .btn {
+    border: none;
+    border-radius: 0;
+    padding: 12px 24px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: all .18s ease;
+  }
+  .btn.primary{background:var(--ink);color:#F6F2EB;box-shadow:none;border:0.5px solid var(--ink)}
+  .btn.secondary{background:rgba(246,242,235,.88);color:var(--ink);border:0.5px solid rgba(26,22,18,.15)}
+  .btn.ghost{background:transparent;color:var(--ink-2);border:0.5px solid var(--gold-line)}
+
+  .result-layout{display:grid;gap:16px}
+  .result-main{padding:52px 48px 40px;text-align:center}
+
+  /* ── 最终结果大数字：DM Mono，精准感 ── */
+  .result-main .big-level {
+    font-family: var(--font-mono);
+    font-size: var(--ts-44);
+    line-height: 1;
+    letter-spacing: -0.04em;
+    font-weight: 400;
+    margin: 4px 0 14px;
+    color: var(--ink);
+    font-variant-numeric: var(--num-feat);
+  }
+
+  /* Result summary — Cormorant，结论语句有质感 */
+  .result-main .big-summary {
+    font-family: var(--font-body);
+    font-size: 17px;
+    line-height: 1.55;
+    color: rgba(74,62,50,.72);
+    max-width: 640px;
+    margin: 0 auto;
+    font-weight: 400;
+    letter-spacing: 0em;
+  }
+
+  .result-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px}
+
+  /* 结果卡片列表：去掉默认 bullet，改为左边框线条风格 */
+  .result-card ul, .result-wide ul {
+    margin: 10px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .result-card ul li, .result-wide ul li {
+    font-family: var(--font-body);
+    font-size: var(--ts-13);
+    color: var(--ink-2);
+    line-height: 1.72;
+    padding: 9px 0 9px 14px;
+    border-left: 0.5px solid var(--gold-line);
+    margin-bottom: 6px;
+  }
+  .result-card ul li:last-child { margin-bottom: 0; }
+  .result-wide{padding:28px 30px 24px}
+
+  /* ── Metric line numbers ── */
+  .metric-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+    font-family: var(--font-body);
+    font-size: var(--ts-13);
+    color: rgba(92,82,72,.62);
+    margin-top: 8px;
+    font-weight: 400;
+  }
+  /* Number in metric line — DM Mono */
+  .metric-line strong {
+    font-family: var(--font-mono);
+    font-size: var(--ts-15);
+    color: var(--ink);
+    letter-spacing: -0.03em;
+    font-weight: 400;
+    font-variant-numeric: var(--num-feat);
+  }
+  .copy-box{padding:20px 22px 18px}
+  textarea {
+    width: 100%;
+    min-height: 170px;
+    border: none;
+    border-bottom: 1px solid var(--line);
+    border-radius: 0;
+    padding: 14px 0;
+    font-family: var(--font-body);
+    font-size: var(--ts-13);
+    line-height: 1.90;
+    letter-spacing: 0.015em;
+    color: var(--ink);
+    background: transparent;
+    resize: vertical;
+    font-weight: 400;
+  }
+  textarea:focus {
+    outline: none;
+    border-bottom-color: var(--gold);
+    box-shadow: none;
+  }
+  textarea::placeholder {
+    color: #9A9285;
+    font-weight: 400;
+    font-style: italic;
+  }
+
+  .note-panel{margin:18px 44px 0;padding:20px 0 0;border:none;background:transparent;border-radius:0;border-top:0.5px solid rgba(154,127,82,.25)}
+
+  /* Note panel title — Cormorant */
+  .note-panel h3 {
+    margin: 0 0 8px;
+    font-family: var(--font-heading);
+    font-size: var(--ts-17);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .note-panel p {
+    margin: 0 0 12px;
+    font-family: var(--font-body);
+    font-size: var(--ts-13);
+    line-height: 1.78;
+    color: var(--ink-2);
+    font-weight: 400;
+  }
+  .note-panel textarea{
+    min-height:110px;
+    background:transparent;
+    border:none !important;
+    border-bottom:0.5px solid rgba(26,22,18,.12) !important;
+    border-radius:0 !important;
+    padding-left:0 !important;
+    padding-right:0 !important;
+    box-shadow:none !important;
+    font-style:italic;
+  }
+  .copy-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:12px}
+  .copy-actions .btn { min-width: 120px; text-align: center; }
+  .muted{color:var(--ink-3)}
+
+  .cover-shell{display:grid;gap:16px}
+  .cover-main{padding:40px 42px 34px;border-radius:0;background:linear-gradient(135deg, rgba(255,255,255,.96) 0%, rgba(250,246,239,.94) 100%);border:1px solid var(--line);box-shadow:0 18px 50px rgba(28,24,20,.06)}
+
+  /* Cover eyebrow — kicker tier */
+  .cover-eyebrow {
+    font-family: var(--font-body);
+    font-size: var(--ts-11);
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 500;
+    margin-bottom: 14px;
+  }
+
+  /* Cover card brand title — Cormorant */
+  .cover-title {
+    font-family: var(--font-heading);
+    font-size: 42px;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    margin: 0 0 12px;
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  .cover-subtitle {
+    font-family: var(--font-body);
+    font-size: var(--ts-15);
+    line-height: 1.78;
+    color: rgba(92,82,72,.70);
+    max-width: 780px;
+    margin: 0 0 20px;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+  }
+
+  .cover-chip-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px}
+  .cover-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 0;
+    background: rgba(246,242,235,.78);
+    border: 0.5px solid var(--line-soft);
+    font-family: var(--font-body);
+    font-size: var(--ts-13);
+    color: var(--ink-2);
+    font-weight: 400;
+  }
+
+  .cover-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:16px}
+  .cover-card{padding:22px 22px 18px;border-radius:0;background:var(--surface);border:0.5px solid var(--line);box-shadow:var(--shadow)}
+
+  /* Cover card heading — Cormorant */
+  .cover-card h3 {
+    margin: 0 0 10px;
+    font-family: var(--font-heading);
+    font-size: var(--ts-17);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .cover-card p {
+    margin: 0 0 12px;
+    font-family: var(--font-body);
+    font-size: var(--ts-13);
+    line-height: 1.78;
+    color: var(--ink-2);
+    font-weight: 400;
+  }
+
+  .cover-step-list{display:grid;gap:10px}
+  .cover-step{display:grid;grid-template-columns:30px 1fr;gap:12px;align-items:flex-start;padding:12px 12px;border-radius:0;background:rgba(246,242,235,.74);border:0.5px solid var(--line-soft)}
+  .cover-step-no{width:30px;height:30px;border-radius:0;display:flex;align-items:center;justify-content:center;background:var(--gold-soft);border:0.5px solid var(--gold-line);font-family:var(--font-mono);font-size:var(--ts-13);font-weight:400;color:var(--gold);font-variant-numeric:var(--num-feat)}
+
+  /* Cover step text — Cormorant */
+  .cover-step strong {
+    display: block;
+    font-family: var(--font-body);
+    font-size: 16px;
+    color: var(--ink);
+    margin-bottom: 2px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+  .cover-step span {
+    display: block;
+    font-family: var(--font-body);
+    font-size: var(--ts-13);
+    line-height: 1.68;
+    color: var(--ink-2);
+    font-weight: 400;
+  }
+  .cover-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+
+  .subcheck-wrap{margin-top:14px;padding:14px 14px 6px;border-radius:0;background:rgba(140,122,91,.06);border:0.5px solid var(--gold-line)}
+
+  /* Subcheck title — kicker tier */
+  .subcheck-title {
+    font-family: var(--font-body) !important;
+    font-size: var(--ts-11) !important;
+    letter-spacing: .12em !important;
+    text-transform: uppercase !important;
+    color: var(--gold) !important;
+    font-weight: 500 !important;
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .subcheck-desc {
+    font-family: var(--font-body);
+    font-size: var(--ts-13);
+    line-height: 1.72;
+    color: var(--ink-2);
+    margin-bottom: 10px;
+    font-weight: 400;
+  }
+
+  .subcheck-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .suboption{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-radius:0;background:transparent;border:0.5px solid rgba(26,22,18,.06);transition:border-color .2s,background .2s}
+  .suboption input{margin-top:2px;accent-color:var(--gold)}
+
+  /* Suboption title — Cormorant */
+  .suboption strong {
+    display: block;
+    font-family: var(--font-body);
+    font-size: 17px;
+    line-height: 1.28;
+    color: var(--ink);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+  .suboption span {
+    display: block;
+    font-family: var(--font-body);
+    font-size: var(--ts-13);
+    line-height: 1.65;
+    color: rgba(92,82,72,.62);
+    margin-top: 3px;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+  }
+
+  .subcheck-head,.compact-head,.detail-entry-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+
+  .mini-link {
+    border: none;
+    background: transparent;
+    color: var(--gold);
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 2px 0;
+    white-space: nowrap;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .detail-entry-row{margin-top:8px;padding:0 2px}
+  .detail-entry-note {
+    font-family: var(--font-body);
+    font-size: 11px;
+    line-height: 1.65;
+    color: rgba(154,140,122,.80);
+    font-weight: 400;
+    letter-spacing: 0em;
+  }
+
+  /* ── Result / subjective / control grids ── */
+  .subjective-grid,.control-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .subjective-block,.control-card{display:flex;flex-direction:column;gap:8px}
+
+  /* Subjective / control labels — small, tracked */
+  .subjective-block label,
+  .control-card label {
+    font-family: var(--font-body);
+    font-size: var(--ts-11);
+    font-weight: 500;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    letter-spacing: .14em;
+  }
+
+  .subjective-block textarea{min-height:128px}
+  .subjective-block-full{margin-top:14px}
+
+  /* ── Segmented control ── */
+  .segmented{display:flex;flex-wrap:wrap;gap:8px}
+  .seg-btn {
+    border: 0.5px solid var(--line);
+    background: rgba(246,242,235,.82);
+    color: var(--ink-2);
+    padding: 9px 14px;
+    border-radius: 0;
+    font-family: var(--font-body);
+    font-size: var(--ts-13);
+    font-weight: 500;
+    cursor: pointer;
+    letter-spacing: -.003em;
+    transition: .15s ease;
+  }
+  .seg-btn.active{background:var(--gold-soft);border-color:var(--gold-line);color:var(--ink)}
+
+  /* ═══ COVER / INTRO HERO ═══
+     Only place where Playfair Display is allowed.
+     Everything else on the page uses --font-ui.
+     ═══════════════════════════════════════════ */
+  .intro-hero {
+    height: 100svh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 6vh 18px 48px;
+    margin-left: -18px;
+    margin-right: -18px;
+    width: calc(100% + 36px);
+    box-sizing: border-box;
+    background: #F6F2EB;
+    overflow: hidden;
+  }
+  .intro-hero-inner {
+    width: 100%;
+    max-width: 560px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    flex: 1;
+    transform: translateY(-8vh);
+  }
+  .intro-hero-inner > * { width: 100%; }
+  .eyebrow {
+    font-family: var(--font-body);
+    font-size: var(--ts-11);
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: rgba(154,148,140,.75);
+    font-weight: 400;
+    margin-bottom: 28px;
+  }
+
+  /* ★ THE ONLY DISPLAY FONT USAGE ★
+     Brand name on cover screen only */
+  .intro-hero h1 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(64px, 9vw, 108px);
+    line-height: 1.0;
+    letter-spacing: -0.015em;
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  /* Tagline：italic Jost 300，覆盖页气质句 */
+  .tagline {
+    font-family: var(--font-body);
+    font-size: clamp(16px, 2vw, 24px);
+    line-height: 1.45;
+    letter-spacing: 0.005em;
+    color: rgba(92,82,72,.74);
+    margin: 18px 0 0;
+    font-weight: 400;
+    font-style: normal;
+  }
+
+  /* Cover footnote — 正常流布局，自动推到底部 */
+  .cover-footnote {
+    margin-top: auto;
+    width: 560px;
+    max-width: calc(100% - 36px);
+    padding-top: 20px;
+    padding-bottom: 0;
+    border-top: 0.5px solid rgba(140,122,91,.12);
+    text-align: center;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    transform: translateY(-20px);
+  }
+  .cover-footnote-lead,
+  .cover-footnote-body {
+    margin: 0;
+    font-family: var(--font-body);
+    color: rgba(92,82,72,.46);
+    font-size: var(--ts-13);
+    line-height: 1.7;
+    letter-spacing: 0.02em;
+    font-weight: 400;
+    font-style: normal;
+    text-wrap: balance;
+    max-width: 320px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .cover-footnote-lead {
+    letter-spacing: 0.03em;
+  }
+
+  .cover-actions{margin-top:48px;display:flex;justify-content:center;width:100%}
+  .cover-actions .btn.primary{min-width:184px;padding:14px 28px;border-radius:0;font-size:var(--ts-13);font-weight:500;box-shadow:none;letter-spacing:0.12em;text-transform:uppercase}
+  .cover-actions .btn.primary:hover{transform:translateY(-1px)}
+
+  /* ═══ MODE SELECTION ═══ */
+  .mode-shell{background:rgba(255,255,255,.92);border:0.5px solid var(--line);border-radius:0;box-shadow:var(--shadow);padding:34px 36px}
+  .mode-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .mode-card{border:0.5px solid var(--line-soft);border-radius:0;padding:18px 16px 16px;background:rgba(255,255,255,.60);cursor:pointer;transition:.18s ease}
+  .mode-card:hover{border-color:var(--gold-line);background:rgba(255,255,255,.80)}
+  .mode-card.active{border-color:var(--gold);border-width:1px;background:rgba(255,255,255,.92);box-shadow:none}
+
+  /* ── Mode card title: Cormorant ── */
+  .mode-title {
+    font-family: var(--font-heading);
+    font-size: var(--ts-22);
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.2;
+  }
+
+  .mode-desc {
+    display: none;
+    font-family: var(--font-body);
+    font-size: var(--ts-13);
+    line-height: 1.88;
+    color: rgba(95,86,76,.78);
+    margin-bottom: 14px;
+    font-weight: 400;
+  }
+
+  /* Mode subtitle — kicker tier */
+  .mode-subtitle {
+    font-family: var(--font-body) !important;
+    font-size: var(--ts-11) !important;
+    letter-spacing: .11em !important;
+    text-transform: uppercase !important;
+    color: rgba(147,137,125,.88) !important;
+    font-weight: 500 !important;
+    margin: 0 0 9px;
+    display: block;
+  }
+
+  .chip-list{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
+    border-radius: 0;
+    background: rgba(246,242,235,.70);
+    border: 0.5px solid var(--line-soft);
+    font-family: var(--font-body);
+    font-size: var(--ts-13);
+    color: var(--ink-2);
+    font-weight: 400;
+  }
+
+  .weight-list{display:grid;gap:7px}
+  .weight-item {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-family: var(--font-body);
+    font-size: var(--ts-13);
+    color: var(--ink-2);
+    font-weight: 400;
+  }
+  /* Weight value — DM Mono */
+  .weight-item strong {
+    color: var(--ink);
+    font-family: var(--font-mono);
+    font-size: var(--ts-13);
+    font-weight: 400;
+    font-variant-numeric: var(--num-feat);
+    letter-spacing: -0.02em;
+  }
+  .weight-item.muted{color:var(--ink-3)}
+  .weight-item.muted strong{color:var(--ink-3);font-weight:500}
+
+  .preview-box {
+    padding: 16px 18px;
+    border-radius: 0;
+    background: rgba(246,242,235,.70);
+    border: 0.5px solid var(--line-soft);
+    font-family: var(--font-body);
+    font-size: var(--ts-13);
+    line-height: 1.78;
+    color: var(--ink-2);
+    min-width: 260px;
+    flex: 1;
+    font-weight: 400;
+  }
+
+  .mode-card{padding:18px 16px 16px}
+  .mode-compact-section{display:grid;gap:8px;margin-top:10px}
+  .mode-section-card{padding:12px;border-radius:0;background:rgba(246,242,235,.78);border:0.5px solid var(--line-soft)}
+  .mode-section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+
+  /* Mode section label — kicker tier */
+  .mode-section-label {
+    font-family: var(--font-body) !important;
+    font-size: var(--ts-11) !important;
+    letter-spacing: .10em !important;
+    text-transform: uppercase !important;
+    color: rgba(147,137,125,.88) !important;
+    font-weight: 500 !important;
+    line-height: 1;
+  }
+
+  /* Mode section note — 12px muted */
+  .mode-section-note {
+    font-family: var(--font-body);
+    font-size: var(--ts-13);
+    color: rgba(95,86,76,.58);
+    font-weight: 400;
+  }
+
+  .mode-chip-grid{display:flex;flex-wrap:wrap;gap:7px}
+  .mode-compact-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
+    border-radius: 0;
+    font-family: var(--font-body);
+    font-size: var(--ts-13);
+    line-height: 1.2;
+    color: rgba(95,86,76,.88);
+    background: rgba(246,242,235,.82);
+    border: 0.5px solid rgba(28,24,20,.05);
+    font-weight: 400;
+  }
+  .mode-compact-chip.muted{background:rgba(246,242,235,.62);border-color:var(--line-soft);color:var(--ink-3)}
+
+  .mode-weight-compact{display:grid;gap:0px}
+  .mode-weight-line {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 0;
+    font-family: var(--font-body);
+    font-size: var(--ts-13);
+    line-height: 1.45;
+    color: rgba(95,86,76,.88);
+    border-bottom: 1px solid rgba(28,24,20,.04);
+    font-weight: 400;
+  }
+  .mode-weight-line:last-child{border-bottom:none}
+  .mode-weight-line strong {
+    font-family: var(--font-mono);
+    font-weight: 400;
+    color: var(--ink);
+    font-variant-numeric: var(--num-feat);
+    font-size: var(--ts-13);
+    letter-spacing: -0.02em;
+  }
+  .mode-weight-line.weak span { color: var(--ink-3); }
+  .mode-weight-line.weak strong { color: var(--ink-3); font-weight: 500; }
+
+
+  /* ═══ FORMS — the "very low" area, now fixed ═══
+     Unified font, consistent sizing, polished details.
+     ═════════════════════════════════════════════ */
+  .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 20px}
+  .field{display:flex;flex-direction:column;gap:6px}
+  .field.full{grid-column:1 / -1}
+
+  /* Field label — Jost 600 uppercase, 0.14em tracking */
+  .field label {
+    font-family: var(--font-body);
+    font-size: var(--ts-11);
+    font-weight: 500;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: rgba(154,140,122,.90);
+    line-height: 1.5;
+  }
+
+  /* ── Inputs / selects：Jost 400，精炼表单 ── */
+  input[type="text"],
+  input[type="date"],
+  input[type="number"],
+  select {
+    width: 100%;
+    min-height: 46px;
+    padding: 11px 0;
+    border-radius: 0;
+    border: none;
+    border-bottom: 1px solid var(--line);
+    background: transparent;
+    font-family: var(--font-body);
+    font-size: var(--ts-13);
+    font-weight: 400;
+    line-height: 1.5;
+    letter-spacing: 0em;
+    color: var(--ink);
+    outline: none;
+    transition: border-color .18s;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  input[type="text"]::placeholder,
+  input[type="number"]::placeholder {
+    color: #9A9285;
+    font-weight: 400;
+    font-style: italic;
+  }
+  input[type="text"]:focus,
+  input[type="date"]:focus,
+  input[type="number"]:focus,
+  select:focus {
+    border-bottom-color: var(--gold);
+    box-shadow: none;
+  }
+
+  .inline-group{display:flex;gap:12px;flex-wrap:wrap}
+  .inline-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 14px;
+    border-radius: 0;
+    border: 0.5px solid var(--line-soft);
+    background: rgba(246,242,235,.70);
+    font-family: var(--font-body);
+    font-size: var(--ts-13);
+    color: var(--ink-2);
+    font-weight: 400;
+  }
+
+  .state-box {
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    padding: 16px 18px;
+  }
+  .state-title {
+    font-family: var(--font-body);
+    font-size: var(--ts-11);
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    font-weight: 500;
+    margin-bottom: 8px;
+    display: block;
+  }
+  .state-box pre {
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: var(--font-heading);
+    font-size: 15px;
+    line-height: 1.72;
+    color: rgba(74,62,50,.72);
+    font-weight: 400;
+    font-style: italic;
+    letter-spacing: -0.01em;
+  }
+  /* ── Backdrop filter retained for depth ── */
+  .mode-card,.group-card,.choice-card,.result-card,.summary-overall,.summary-dims{
+    backdrop-filter:blur(2px);
+  }
+
+  /* ── text-wrap: balance for all headings ── */
+  .dimtitle,
+  .title,
+  .group-title,
+  .choice-title,
+  .mode-title,
+  .result-card h3,
+  .result-wide h3,
+  .cover-title,
+  .cover-card h3,
+  .note-panel h3,
+  .itemtitle {
+    text-wrap: balance;
+  }
+
+  /* ===== V10 refinement: mode / scoring / result ===== */
+  .mode-shell.v10 { padding: 42px 40px 34px; border-radius: 0; }
+  .mode-shell.v10 .desc { max-width: 760px; color: rgba(92,82,72,.74); }
+  .mode-grid.v10 { gap: 18px; margin-top: 24px !important; }
+  .mode-grid.v10 .mode-card { border-radius: 0; padding: 24px 22px 22px; background: rgba(255,255,255,.82); box-shadow: none; }
+  .mode-grid.v10 .mode-card.active { background: rgba(255,255,255,.96); border-color: var(--gold); box-shadow: none; }
+  .mode-grid.v10 .mode-title { margin-bottom: 12px; }
+  .mode-grid.v10 .mode-desc { display: block; margin-bottom: 18px; max-width: 240px; }
+  .mode-grid.v10 .chip-list { gap: 10px; margin-bottom: 0; }
+  .mode-grid.v10 .chip { background: transparent; border: none; padding: 0; border-radius: 0; color: var(--ink); font-size: 14px; }
+  .mode-grid.v10 .chip-list { display: grid; gap: 6px; }
+  .mode-preview-minimal { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line-soft); display:flex; justify-content:space-between; align-items:flex-end; gap:14px; flex-wrap:wrap; }
+  .mode-preview-copy { max-width: 420px; color: rgba(92,82,72,.74); font-size: 13px; line-height: 1.8; }
+
+  .item.v10-item { padding: 40px 0 40px; }
+  .item.v10-item .itembadge {
+    font-size: 10px !important;
+    letter-spacing: .14em !important;
+    color: var(--ink-3) !important;
+  }
+  .item.v10-item .itemtitle {
+    font-family: var(--font-heading) !important;
+    font-size: 22px !important;
+    font-weight: 500 !important;
+    line-height: 1.32 !important;
+  }
+  .item.v10-item .itemhint {
+    max-width: 860px;
+    font-family: var(--font-body) !important;
+    font-size: 13px !important;
+    color: rgba(92,82,72,.58) !important;
+  }
+
+  .head .dimtitle {
+    font-size: 32px !important;
+    line-height: 1.3 !important;
+  }
+
+  /* ── Score zone ── */
+  .score-zone { margin: 34px 0 0; }
+
+  /* current value row — full width, sits above the grid */
+  .score-current { display: flex; align-items: baseline; gap: 8px; margin-bottom: 20px; }
+  .score-current strong {
+    font-family: var(--font-mono); font-size: 28px; line-height: 1;
+    color: var(--ink); font-weight: 400; letter-spacing: -0.04em;
+    font-variant-numeric: var(--num-feat);
+  }
+  .score-current em {
+    font-family: var(--font-body); font-size: var(--ts-11);
+    letter-spacing: .13em; text-transform: uppercase;
+    color: var(--ink-3); font-style: normal;
+  }
+
+  .score-grid { position: relative; }
+
+  /* Tick row */
+  .score-tick-row-inner { position: relative; height: 18px; margin-bottom: 8px; }
+  .score-tick {
+    position: absolute;
+    transform: translateX(-50%);
+    font-family: var(--font-body);
+    font-size: var(--ts-11);
+    color: rgba(26,22,18,.18);
+    line-height: 1;
+    top: 0;
+  }
+  .score-tick.is-anchor { color: rgba(26,22,18,.34); }
+  .score-tick.is-active { color: var(--gold); }
+
+  /* Slider */
+  .score-slider-wrap { margin: 0; }
+  input[type="range"].v10-slider {
+    display: block; width: 100%;
+    accent-color: var(--gold); height: 1px; cursor: pointer; margin: 0;
+  }
+
+  /*
+   * Active anchor: one label at a time, floats below the thumb.
+   * JS sets its `left` to match thumb centre, then clamps so it
+   * never overflows the container.
+   */
+  .score-anchor-row { position: relative; min-height: 28px; margin-top: 14px; }
+  .score-active-label {
+    position: absolute;
+    top: 0;
+    font-family: var(--font-body);
+    font-size: var(--ts-13);
+    color: var(--ink-2);
+    line-height: 1.62;
+    white-space: nowrap;
+    transition: left 0.12s ease, right 0.12s ease;
+  }
+
+  /* ===== 溢价支撑条件：仅字体视觉修正，不改布局 ===== */
+  .premium-section .choice-title {
+    font-family: var(--font-heading) !important;
+    font-size: 24px !important;
+    font-weight: 400 !important;
+    letter-spacing: -0.01em !important;
+    color: rgba(26,22,18,.72) !important;
+    margin: 6px 0 6px !important;
+  }
+  .premium-section .choice-desc {
+    font-family: var(--font-body) !important;
+    font-size: var(--ts-13) !important;
+    color: rgba(92,82,72,.56) !important;
+    line-height: 1.72 !important;
+    margin: 0 0 18px !important;
+  }
+  /* 选项行：去掉白底卡片，只用细线分隔 */
+  .premium-option {
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    border-top: 0.5px solid rgba(26,22,18,.06) !important;
+    padding: 9px 0 !important;
+    gap: 12px !important;
+    align-items: center !important;
+  }
+  .premium-option:hover { background: transparent !important; border-color: rgba(26,22,18,.06) !important; }
+  /* 右列选项向右缩进，制造明确的左右分区感 */
+  .check-list > label.premium-option:nth-child(even) {
+    padding-left: 40px !important;
+    border-left: 0.5px solid rgba(26,22,18,.05) !important;
+  }
+  .premium-option strong {
+    font-family: var(--font-body) !important;
+    font-size: var(--ts-13) !important;
+    font-weight: 400 !important;
+    color: rgba(26,22,18,.58) !important;
+    letter-spacing: 0 !important;
+    line-height: 1.5 !important;
+  }
+  .premium-option:hover strong {
+    color: rgba(26,22,18,.66) !important;
+  }
+  .premium-option input:checked ~ div strong {
+    color: rgba(26,22,18,.78) !important;
+    font-weight: 500 !important;
+  }
+  /* 当前判断：去掉金色背景块 */
+  .premium-verdict {
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 0.5px solid rgba(26,22,18,.06);
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: rgba(92,82,72,.48);
+  }
+  .premium-verdict span { font-weight: 500; color: rgba(92,82,72,.56); }
+
+  .foot.v10-foot { padding-top: 24px; }
+
+  .result-main.v10-result { text-align: left; padding: 64px 80px 48px 80px; }
+
+  /* Score headline — the absolute focal point */
+  .result-scoreline { display:flex; align-items:flex-end; gap:20px; margin: 8px 0 16px; flex-wrap:wrap; }
+  .result-points { font-family: var(--font-mono) !important; font-size: 108px; line-height: .88; letter-spacing: -0.05em; color: var(--ink); font-weight: 400; font-variant-numeric: var(--num-feat); }
+  .result-denom { font-family: var(--font-body); font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: rgba(92,82,72,.25); padding-bottom: 8px; }
+
+  /* Verdict sits tight under the score, before summary */
+  .result-main.v10-result .big-summary {
+    margin: 20px 0 36px;
+    max-width: 560px;
+    font-size: 15px;
+    line-height: 1.88;
+    font-style: italic;
+    color: rgba(74,62,50,.52);
+    letter-spacing: 0.01em;
+  }
+  .result-breakdown { border-top: 0.5px solid rgba(26,22,18,.06); padding-top: 20px; }
+
+  /* ═══ RESULT TRIO — demoted to secondary tier ═══ */
+  .result-trio {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    border-top: 0.5px solid rgba(26,22,18,.06);
+    border-bottom: 0.5px solid rgba(26,22,18,.06);
+    margin: 0 0 24px;
+    padding: 16px 0;
+  }
+  .result-trio-card {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .result-trio-card:nth-child(1) { align-items: flex-start; }
+  .result-trio-card:nth-child(2) { align-items: center; }
+  .result-trio-card:nth-child(3) { align-items: flex-end; }
+  .result-trio-label {
+    font-family: var(--font-body);
+    font-size: var(--ts-11);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: rgba(92,82,72,.34);
+    font-weight: 400;
+  }
+  .result-trio-value {
+    font-family: var(--font-mono);
+    font-size: 20px;
+    font-weight: 400;
+    color: rgba(26,22,18,.62);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    font-variant-numeric: var(--num-feat);
+  }
+  .result-trio-risk {
+    font-family: var(--font-body);
+    font-size: 16px;
+    letter-spacing: 0.01em;
+    color: rgba(26,22,18,.62);
+  }
+  .result-actions-row { margin-top: 30px; display:flex; gap:12px; flex-wrap:wrap; justify-content:flex-end; }
+  .result-actions-row .btn { min-width: 120px; text-align: center; }
+  .result-bottom-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .result-bottom-row .btn { min-width: 120px; text-align: center; }
+  /* ─── 对比记录区块（低调辅助风格）─── */
+  .result-compare-subtle {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 0.5px solid rgba(26,22,18,.07);
+  }
+  .result-compare-subtle-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .compare-text-btn {
+    background: transparent;
+    border: none;
+    padding: 0;
+    font-family: var(--font-body);
+    font-size: var(--ts-13);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--gold);
+    cursor: pointer;
+    text-transform: uppercase;
+    font-size: 11px;
+    transition: opacity .15s;
+  }
+  .compare-text-btn:hover { opacity: .7; }
+  .compare-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 0.5px solid rgba(26,22,18,.05);
+  }
+  .compare-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .compare-row-main { flex: 1; min-width: 0; }
+  .compare-hotel { display: flex; align-items: baseline; gap: 8px; margin-bottom: 2px; }
+  .compare-name {
+    font-family: var(--font-heading);
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 280px;
+  }
+  .compare-city {
+    font-family: var(--font-body);
+    font-size: var(--ts-11);
+    color: var(--ink-3);
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+  .compare-meta {
+    font-family: var(--font-body);
+    font-size: var(--ts-11);
+    color: rgba(92,82,72,.42);
+    letter-spacing: 0.01em;
+  }
+  .compare-row-scores {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+  .compare-score-block {
+    display: flex;
+    align-items: baseline;
+    gap: 3px;
+  }
+  .compare-score-num {
+    font-family: var(--font-mono);
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--ink);
+    letter-spacing: -0.04em;
+    font-variant-numeric: var(--num-feat);
+  }
+  .compare-score-unit {
+    font-family: var(--font-body);
+    font-size: var(--ts-11);
+    color: var(--ink-3);
+    letter-spacing: 0.04em;
+  }
+  .compare-value-label {
+    font-family: var(--font-body);
+    font-size: var(--ts-11);
+    color: rgba(92,82,72,.50);
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+  .compare-delete {
+    background: transparent;
+    border: none;
+    color: rgba(92,82,72,.28);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 4px 6px;
+    flex-shrink: 0;
+    transition: color .15s;
+  }
+  .compare-delete:hover { color: var(--danger); }
+  @media (max-width: 760px) {
+    .compare-row { flex-wrap: wrap; gap: 10px; }
+    .compare-name { max-width: 180px; }
+  }
+  .result-writing-box,
+  .result-subjective-box,
+  .result-archive-box { padding: 22px 24px 18px; border: 0.5px solid var(--line-soft); border-radius: 0; background: rgba(255,255,255,.80); }
+  .result-writing-box { margin-top: 16px; }
+  .result-subjective-box,
+  .result-archive-box { margin-top: 16px; }
+  .result-writing-grid,
+  .result-subjective-grid { display:grid; gap:14px; }
+  .result-writing-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .result-subjective-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .result-writing-box label,
+  .result-subjective-box label { display:block; margin-bottom:8px; color:var(--ink-2); font-size:var(--ts-13); letter-spacing:.01em; }
+  .result-writing-box select,
+  .result-subjective-box textarea,
+  .result-archive-box textarea {
+    width:100%; background:transparent; border:none; border-bottom:1px solid var(--line); border-radius:0; padding:12px 0;
+    font-family:var(--font-body); font-size:var(--ts-13); line-height:1.90; color:var(--ink); box-shadow:none;
+  }
+  .result-subjective-box textarea { min-height: 112px; resize: vertical; }
+  .result-archive-box textarea { min-height: 180px; resize: vertical; }
+  .result-writing-box select:focus,
+  .result-subjective-box textarea:focus,
+  .result-archive-box textarea:focus { outline:none; border-bottom-color:var(--gold); box-shadow:none; }
+  .result-field-wide { grid-column: 1 / -1; }
+  .result-panel-desc { color: rgba(92,82,72,.72); font-size: var(--ts-13); line-height: 1.78; margin: 0 0 14px; }
+  @media (max-width: 768px) {
+    .result-writing-grid,
+    .result-subjective-grid { grid-template-columns: 1fr; }
+  }
+
+
+
+  /* ═══ RISK PAGE REFINEMENT ═══ */
+  .risk-stage .head {
+    padding-top: 34px;
+    padding-bottom: 24px;
+    background: rgba(246,242,235,.72);
+  }
+  .risk-stage .dimtag {
+    color: rgba(154,127,82,.72) !important;
+    background: transparent;
+    border-color: rgba(154,127,82,.24);
+    margin-bottom: 10px;
+  }
+  .risk-stage .dimtitle {
+    font-size: 30px;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  .risk-stage .dimcore {
+    max-width: 700px;
+    color: rgba(26,22,18,.54);
+    font-size: 13px;
+    line-height: 1.72;
+  }
+  .risk-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 44px;
+    padding: 10px 44px 8px;
+  }
+  .risk-card {
+    padding: 26px 0 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+  .risk-card + .risk-card {
+    border-top: 1px solid rgba(26,22,18,.06);
+  }
+  .risk-card .card-kicker {
+    margin-bottom: 8px;
+    color: rgba(154,127,82,.72) !important;
+  }
+  .risk-card .group-title {
+    font-family: var(--font-heading);
+    font-size: 24px;
+    line-height: 1.18;
+    color: rgba(48, 39, 32, .88);
+    margin-bottom: 8px;
+  }
+  .risk-card .group-desc {
+    margin-bottom: 16px;
+    color: rgba(26,22,18,.54);
+    font-size: 13px;
+    line-height: 1.72;
+  }
+  .risk-card.fatal {
+    border-left: 2px solid rgba(176,64,64,.9);
+    padding-left: 18px;
+  }
+  .risk-card.structural {
+    border-left: 2px solid rgba(154,127,82,.55);
+    padding-left: 18px;
+  }
+  .risk-card.gap {
+    border-left: 2px solid rgba(154,127,82,.28);
+    padding-left: 18px;
+  }
+  .risk-card.minor {
+    border-left: 2px solid rgba(154,127,82,.12);
+    padding-left: 18px;
+  }
+  .risk-card .check-list {
+    display: grid;
+    gap: 0;
+  }
+  .risk-card .option-block {
+    padding: 0;
+    border-bottom: 1px solid rgba(26,22,18,.06);
+  }
+  .risk-card .option {
+    display: grid;
+    grid-template-columns: 24px 1fr;
+    gap: 12px;
+    align-items: start;
+    padding: 14px 0 8px;
+    border: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+  }
+  .risk-card .option:hover {
+    background: transparent !important;
+    border-color: transparent !important;
+  }
+  .risk-card .option input {
+    margin-top: 4px;
+  }
+  .risk-card .option strong,
+  .risk-card .option > div > strong {
+    font-family: var(--font-body) !important;
+    font-size: 15px !important;
+    line-height: 1.45 !important;
+    font-weight: 500 !important;
+    letter-spacing: 0 !important;
+    color: rgba(44, 36, 31, .84) !important;
+  }
+  .risk-card .option span,
+  .risk-card .option > div > span {
+    font-family: var(--font-body) !important;
+    font-size: 13px !important;
+    line-height: 1.68 !important;
+    font-weight: 400 !important;
+    color: rgba(26,22,18,.52) !important;
+    margin-top: 3px;
+  }
+  .risk-card .detail-entry-row {
+    margin: 0 0 10px 36px;
+    padding: 0 0 10px;
+    align-items: center;
+  }
+  .risk-card .detail-entry-note {
+    font-size: 12px;
+    color: rgba(26,22,18,.34);
+    line-height: 1.55;
+  }
+  .risk-card .mini-link {
+    font-size: 11px;
+    color: rgba(26,22,18,.34);
+    letter-spacing: .08em;
+  }
+  .risk-card .mini-link:hover {
+    color: rgba(154,127,82,.78);
+  }
+  .risk-card .subcheck-wrap {
+    margin: 0 0 12px 36px;
+    padding: 12px 14px 10px;
+    border-radius: 0;
+    background: rgba(246,242,235,.62);
+    border: 0.5px solid rgba(26,22,18,.06);
+  }
+  .risk-card .subcheck-title {
+    color: rgba(154,127,82,.74) !important;
+  }
+  .risk-card .subcheck-desc {
+    color: rgba(26,22,18,.5);
+    font-size: 12px;
+  }
+  .risk-card .suboption {
+    border-radius: 0;
+    border: 0.5px solid rgba(26,22,18,.05);
+    padding: 10px 12px;
+  }
+  .risk-card .suboption strong,
+  .risk-card .suboption > div > strong {
+    font-family: var(--font-body) !important;
+    font-size: 14px !important;
+    line-height: 1.45 !important;
+    font-weight: 500 !important;
+  }
+  .risk-card .suboption span,
+  .risk-card .suboption > div > span {
+    font-family: var(--font-body) !important;
+    font-size: 12px !important;
+    color: rgba(26,22,18,.5) !important;
+  }
+  .risk-card .rule-box {
+    margin-top: 16px;
+    padding: 12px 0 0;
+    border-radius: 0;
+    background: transparent;
+    border: none;
+    border-top: 1px solid rgba(26,22,18,.07);
+    color: rgba(26,22,18,.5);
+    font-size: 12px;
+    line-height: 1.68;
+  }
+  .risk-card .rule-box strong {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: rgba(26,22,18,.6);
+  }
+  .risk-stage .note-panel {
+    margin: 12px 44px 0;
+    padding-top: 18px;
+    border-top-color: rgba(26,22,18,.08);
+  }
+  .risk-stage .note-panel h3 {
+    font-size: 20px;
+  }
+  .risk-stage .note-panel p {
+    max-width: 760px;
+    color: rgba(26,22,18,.54);
+  }
+  .risk-stage .foot {
+    background: rgba(246,242,235,.72);
+  }
+  .risk-stage .dimavg {
+    color: rgba(26,22,18,.58);
+  }
+  @media (max-width: 760px) {
+    .risk-grid {
+      grid-template-columns: 1fr;
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+    .risk-stage .note-panel {
+      margin-left: 20px;
+      margin-right: 20px;
+    }
+  }
+
+
+  /* ===== RESULT GRID REFINEMENT ===== */
+  .result-layout > .result-grid{
+    align-items:stretch;
+  }
+  .result-layout > .result-grid .result-card{
+    min-height:100%;
+    padding:24px 26px 22px;
+  }
+  .result-layout > .result-grid .result-card h3{
+    margin-bottom:14px;
+  }
+  .result-layout > .result-grid .result-card ul{
+    margin-top:2px;
+  }
+  .result-layout > .result-grid .result-card ul li{
+    padding:10px 0 10px 16px;
+  }
+  .result-layout > .result-grid .metric-line{
+    padding:8px 0;
+    margin-top:0;
+    border-bottom:1px solid rgba(26,22,18,.05);
+  }
+  .result-layout > .result-grid .metric-line:last-child{
+    border-bottom:none;
+    padding-bottom:0;
+  }
+  .result-layout > .result-grid .metric-line span:first-child{
+    color:rgba(26,22,18,.62);
+  }
+  .result-layout > .result-grid .metric-line strong,
+  .result-layout > .result-grid .metric-line span:last-child{
+    color:var(--ink);
+  }
+
+  /* ── Responsive ── */
+
+@media (max-width: 900px){
+    .mode-grid{grid-template-columns:1fr}
+  }
+@media (max-width: 760px){
+    /* ── 全局基础 ── */
+    .app{padding:16px 14px 36px}
+    .topbar{align-items:flex-start;flex-direction:column;gap:8px;margin-bottom:12px}
+    .progress{max-width:none;width:100%}
+    .step{font-size:10px}
+
+    /* ── 布局折叠 ── */
+    .summary-strip,.section-grid,.result-grid,.subjective-grid,.control-grid,.cover-grid,.grid{grid-template-columns:1fr}
+    .dim-chip-row{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .result-writing-grid{grid-template-columns:1fr}
+
+    /* ── 内边距收紧 ── */
+    .hero,.head,.foot,.result-main,.result-wide,.copy-box,.mode-shell{padding-left:18px;padding-right:18px}
+    .items{padding:0 18px 6px}
+    .anchors{grid-template-columns:1fr}
+    .subcheck-grid{grid-template-columns:1fr}
+
+    /* ── 字号 ── */
+    .title{font-size:var(--ts-17)}
+    .dimtitle{font-size:22px}
+    .group-title,.choice-title,.result-card h3,.result-wide h3,.mode-title{font-size:var(--ts-17)}
+
+    /* ── 封面页 ── */
+    .intro-hero{
+      height:100svh;
+      padding:12vh 18px 28px;
+    }
+    .intro-hero-inner{
+      transform:translateY(-5.5vh);
+      max-width:520px;
+    }
+    .intro-hero h1{font-size:52px}
+    .tagline{font-size:16px;margin:14px 0 0}
+    .cover-actions{margin-top:30px}
+    .cover-footnote{
+      max-width:calc(100% - 28px);
+      padding-top:18px;
+      transform:translateY(-6px);
+    }
+
+    /* ── 摘要条 ── */
+    .summary-big{font-size:36px}
+    .dimavg strong{font-size:var(--ts-22)}
+    .labels{flex-direction:column}
+    .scorepill{font-size:15px}
+
+    /* ── 模式页 ── */
+    .mode-shell.v10{padding:24px 18px 20px}
+    .mode-preview-minimal{flex-direction:column;gap:14px}
+    .mode-preview-minimal .action-right{width:100%;justify-content:flex-end}
+
+    /* ── 维度评分页 ── */
+    .head{padding:24px 18px 18px}
+    .foot{padding:16px 18px 20px}
+    .item.v10-item{padding:28px 0 24px}
+
+    /* ── 结果页第一屏 ── */
+    .result-main.v10-result{padding:32px 18px 28px !important;}
+    .result-points{font-size:76px !important;}
+    .result-main.v10-result .big-summary{font-size:14px}
+
+    /* ── 结果页第二区块：两列变单列 ── */
+    .result-secondary-cols{
+      grid-template-columns:1fr !important;
+    }
+    .result-secondary-cols > div:first-child{
+      padding-right:0 !important;
+      border-right:none !important;
+      padding-bottom:24px;
+      border-bottom:0.5px solid rgba(26,22,18,.07);
+    }
+    .result-secondary-cols > div:last-child{
+      padding-left:0 !important;
+      padding-top:20px !important;
+    }
+
+    /* ── trio 三栏 ── */
+    .result-trio{flex-direction:column;gap:14px;padding:14px 0;}
+    .result-trio-card{align-items:flex-start !important;}
+
+    /* ── 结果页卡片 ── */
+    .result-layout > .result-grid .result-card{padding:18px 18px 16px}
+
+    /* ── 溢价支撑条件：双列变单列 ── */
+    .check-list[style*="grid-template-columns:1fr 1fr"]{
+      grid-template-columns:1fr !important;
+    }
+    .check-list > label.premium-option:nth-child(even){
+      padding-left:0 !important;
+      border-left:none !important;
+      border-top:0.5px solid rgba(26,22,18,.06) !important;
+    }
+
+    /* ── 对比记录 ── */
+    .result-compare-subtle-head{flex-direction:column;align-items:flex-start;gap:10px}
+    .compare-row{flex-wrap:wrap;gap:8px}
+    .compare-name{max-width:200px}
+    .compare-row-scores{flex-wrap:wrap}
+
+    /* ── 底部操作行 ── */
+    .result-bottom-row{flex-direction:column;gap:10px}
+    .result-bottom-row > div{width:100%;justify-content:stretch}
+    .result-bottom-row .btn{flex:1}
+    .result-actions-row{justify-content:stretch;flex-direction:column}
+    .result-actions-row .btn{width:100%}
+    .copy-actions .btn{flex:1}
+
+    /* ── 风险页 ── */
+    .risk-grid{grid-template-columns:1fr;padding-left:18px;padding-right:18px}
+    .risk-stage .note-panel{margin-left:18px;margin-right:18px}
+
+    /* ── 价值页 premium options ── */
+    .premium-option{padding:10px 0 !important}
+  }
+
+
+  /* ═══ UNIVERSAL CORMORANT OVERRIDE ═══
+     Catches all dynamically rendered content-title elements.
+     These selectors are intentionally broad to ensure
+     design-language consistency across JS-rendered HTML.
+     ════════════════════════════════════════════════════ */
+
+  /* All content headings in cards → Cormorant */
+  .group-card h3,
+  .choice-card h3,
+  .result-card h3,
+  .result-wide h3,
+  .main h2,
+  .hero h1,
+  .mode-shell h2 {
+    font-family: var(--font-heading) !important;
+    font-weight: 500 !important;
+    letter-spacing: -0.01em !important;
+  }
+
+  /* Inside option and suboption — font-body on strong (risk page titles) */
+  .option > div > strong,
+  .option strong,
+  .suboption > div > strong,
+  .suboption strong {
+    font-family: var(--font-body) !important;
+    font-size: 15px !important;
+    font-weight: 500 !important;
+    line-height: 1.5 !important;
+    letter-spacing: 0em !important;
+    color: var(--ink) !important;
+  }
+
+  /* Inside option and suboption — Jost 300 on span desc */
+  .option > div > span,
+  .option span,
+  .suboption > div > span,
+  .suboption span {
+    font-family: var(--font-body) !important;
+    font-size: var(--ts-13) !important;
+    font-weight: 400 !important;
+    color: rgba(92,82,72,.62) !important;
+    letter-spacing: 0em !important;
+  }
+
+  /* Anchor reference scores (1分/3分/5分) — DM Mono */
+  .anchor strong {
+    font-family: var(--font-mono) !important;
+    font-size: 13px !important;
+    font-weight: 400 !important;
+    color: var(--gold) !important;
+    letter-spacing: -0.02em !important;
+    font-variant-numeric: var(--num-feat) !important;
+  }
+
+  /* dimavg label value text (当前价值判断 XXX) */
+  .dimavg strong {
+    font-family: var(--font-mono) !important;
+    font-size: var(--ts-28) !important;
+    font-weight: 400 !important;
+    letter-spacing: -0.04em !important;
+    font-variant-numeric: var(--num-feat) !important;
+  }
+
+  /* metric-line numbers */
+  .metric-line strong {
+    font-family: var(--font-mono) !important;
+    font-weight: 400 !important;
+    letter-spacing: -0.03em !important;
+    font-variant-numeric: var(--num-feat) !important;
+  }
+
+  /* Verdict pill — Jost 500, consistent */
+  .verdict {
+    font-family: var(--font-body) !important;
+    font-weight: 500 !important;
+    font-size: var(--ts-13) !important;
+    letter-spacing: 0em !important;
+  }
+
+  /* Button consistency */
+  .btn {
+    font-family: var(--font-body) !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.01em !important;
+  }
+
+  /* Score pill numbers */
+  .scorepill {
+    font-family: var(--font-mono) !important;
+    font-weight: 400 !important;
+    background: transparent !important;
+    border: 0.5px solid rgba(154,127,82,.35) !important;
+    letter-spacing: -0.05em !important;
+  }
+
+  /* dim-chip-score */
+  .dim-chip-score {
+    font-family: var(--font-mono) !important;
+    font-weight: 400 !important;
+  }
+
+  /* summary-big — 数字，统一 font-mono */
+  .summary-big {
+    font-family: var(--font-mono) !important;
+    font-weight: 400 !important;
+  }
+
+  /* result big-level — 数字，统一 font-mono */
+  .result-main .big-level {
+    font-family: var(--font-mono) !important;
+    font-weight: 400 !important;
+  }
+
+
+  /* ===== 风险页完整视觉重写 =====
+     目标：去掉所有白色卡片背景和 alert 式边框，
+     统一为"线条 + 留白 + 纯文字层级"语言，和整页一致。
+  ===== */
+
+  /* group-card：去掉白底，只用细线分隔上方 */
+  .section-grid .group-card {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 32px 0 24px !important;
+    border-top: 0.5px solid var(--line-soft) !important;
+  }
+
+  /* card-kicker 在风险页保持小写英文标注 */
+  .section-grid .card-kicker {
+    font-family: var(--font-body) !important;
+    font-size: 10px !important;
+    letter-spacing: .18em !important;
+    text-transform: uppercase !important;
+    color: var(--gold) !important;
+    margin-bottom: 6px !important;
+  }
+
+  /* group-title：Cormorant，和整页标题层级一致 */
+  .section-grid .group-title {
+    font-family: var(--font-heading) !important;
+    font-size: 24px !important;
+    font-weight: 400 !important;
+    letter-spacing: -0.01em !important;
+    line-height: 1.2 !important;
+    color: var(--ink) !important;
+    margin: 0 0 6px !important;
+  }
+
+  /* group-desc：body，轻色，和 dimcore 一致 */
+  .section-grid .group-desc {
+    font-family: var(--font-body) !important;
+    font-size: var(--ts-13) !important;
+    color: rgba(92,82,72,.58) !important;
+    line-height: 1.72 !important;
+    margin: 0 0 18px !important;
+    font-weight: 400 !important;
+    letter-spacing: 0 !important;
+  }
+
+  /* option：去掉白底卡片，改为纯文字行，上方用极细线分隔 */
+  .section-grid label.option {
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    border-top: 0.5px solid rgba(26,22,18,.05) !important;
+    padding: 14px 0 !important;
+    gap: 12px !important;
+  }
+  .section-grid label.option:first-child { border-top: none !important; }
+  .section-grid label.option:hover {
+    background: transparent !important;
+    border-color: transparent !important;
+  }
+
+  /* option strong：body font，清晰但不抢眼 */
+  .section-grid .option strong,
+  .section-grid .option-block .option strong {
+    font-family: var(--font-body) !important;
+    font-size: var(--ts-15) !important;
+    font-weight: 500 !important;
+    color: var(--ink) !important;
+    letter-spacing: 0 !important;
+    line-height: 1.4 !important;
+  }
+
+  /* option span：轻色描述 */
+  .section-grid .option span,
+  .section-grid .option-block .option span {
+    font-family: var(--font-body) !important;
+    font-size: var(--ts-13) !important;
+    font-weight: 400 !important;
+    color: rgba(92,82,72,.56) !important;
+    letter-spacing: 0 !important;
+    line-height: 1.65 !important;
+    margin-top: 2px !important;
+  }
+
+  /* detail-entry-row：展开细项行 */
+  .section-grid .detail-entry-row {
+    padding: 4px 0 10px !important;
+    border: none !important;
+    background: transparent !important;
+  }
+  .section-grid .detail-entry-note {
+    font-family: var(--font-body) !important;
+    font-size: 12px !important;
+    color: rgba(92,82,72,.42) !important;
+  }
+
+  /* mini-link */
+  .section-grid .mini-link {
+    font-family: var(--font-body) !important;
+    font-size: 12px !important;
+    color: var(--gold) !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    text-decoration: underline !important;
+    text-underline-offset: 2px !important;
+    cursor: pointer !important;
+  }
+
+  /* rule-box：去掉金色背景块，改为细线上边框 + 轻色文字 */
+  .section-grid .rule-box {
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    border-top: 0.5px solid rgba(26,22,18,.06) !important;
+    padding: 12px 0 0 !important;
+    margin-top: 8px !important;
+    font-family: var(--font-body) !important;
+    font-size: 12px !important;
+    color: rgba(92,82,72,.48) !important;
+    line-height: 1.72 !important;
+    letter-spacing: 0 !important;
+  }
+  .section-grid .rule-box strong {
+    font-family: var(--font-body) !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    color: rgba(92,82,72,.64) !important;
+    letter-spacing: 0 !important;
+  }
+
+  /* option-block 整体 */
+  .section-grid .option-block {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+  }
+
+  /* 禁止该页风险/选择模块回落到 Playfair */
+  .section-grid .group-title,
+  .section-grid .choice-title,
+  .section-grid .option strong,
+  .section-grid .option span,
+  .section-grid .mini-link,
+  .section-grid .rule-box,
+  .section-grid .rule-box strong,
+  .option-block,
+  .option-block * {
+    font-family: inherit;
+  }
+
+  .section-grid .group-title,
+  .section-grid .choice-title {
+    font-family: var(--font-heading) !important;
+  }
+
+  .section-grid .option,
+  .section-grid .option *,
+  .section-grid .mini-link,
+  .section-grid .rule-box,
+  .section-grid .rule-box * {
+    font-family: var(--font-body) !important;
+  }
+
+
+/* === SUMMARY REFINEMENT OVERRIDE === */
+.summary-big {
+  font-family: var(--font-mono) !important;
+  font-size: 48px !important;
+  letter-spacing: -0.04em !important;
+}
+
+.verdict {
+  font-size: 12px !important;
+  padding: 4px 10px !important;
+  letter-spacing: 0.08em !important;
+}
+
+.summary-label {
+  font-family: var(--font-body) !important;
+  font-size: 11px !important;
+  letter-spacing: 0.16em !important;
+  text-transform: uppercase !important;
+  color: var(--ink-3) !important;
+}
+
+.summary-score-row {
+  align-items: flex-end !important;
+  gap: 16px !important;
+}
+
+
+  /* ═══ CUSTOM GOLD CHECKBOX — 去组件化 ═══
+     完全取代浏览器默认复选框，改为 1px 金色边框正方形。
+     ═══════════════════════════════════════ */
+  input[type="checkbox"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border: 1px solid var(--gold);
+    border-radius: 0;
+    background: transparent;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-top: 4px;
+    position: relative;
+    transition: background .12s, border-color .12s;
+  }
+  input[type="checkbox"]:checked {
+    background: transparent;
+    border-color: var(--gold);
+  }
+  input[type="checkbox"]:checked::after {
+    content: '';
+    position: absolute;
+    left: 3px;
+    top: 0px;
+    width: 4px;
+    height: 8px;
+    border: 1px solid var(--gold);
+    border-top: none;
+    border-left: none;
+    transform: rotate(45deg);
+  }
+  input[type="checkbox"]:focus {
+    outline: none;
+    border-color: var(--gold);
+  }
+
+  /* ═══ SCORE-MAIN ITALIC — 手工镌刻质感 ═══ */
+  .score-main {
+    font-style: italic !important;
+    letter-spacing: 0.05em !important;
+  }
+
+  /* ═══ COVER PAGE — 封面保留原有圆润感 ═══
+     覆盖封面专属元素，让封面与 v17 保持一致 */
+  .cover-main {
+    border-radius: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,.96) 0%, rgba(250,246,239,.94) 100%);
+    border: 0.5px solid var(--line);
+    box-shadow: 0 18px 50px rgba(28,24,20,.06);
+  }
+  .cover-actions .btn.primary {
+    border-radius: 0 !important;
+    min-width: 184px;
+    padding: 14px 28px;
+    font-size: var(--ts-13);
+    font-weight: 500;
+    box-shadow: none;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  /* ═══ MODULE SPACING — 严格 32px ═══ */
+  .item { padding: 32px 0 28px; }
+  .item:first-child { padding-top: 24px; }
+
+  /* ═══ NOTE-PANEL TEXTAREA — 全继承信笺风格 ═══ */
+  .note-panel textarea {
+    min-height: 110px;
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 0.5px solid rgba(26,22,18,.12) !important;
+    border-radius: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    box-shadow: none !important;
+    font-style: italic;
+  }
+
+  /* ═══ COVER-ACTIONS — 居中对齐 ═══ */
+  .cover-actions { margin-top: 48px; display: flex; justify-content: center; width: 100%; }
+
+  /* ═══ SUMMARY OVERRIDE — 白色卡片感，参照 v17 ═══ */
+  .summary-overall, .summary-dims {
+    background: rgba(255,255,255,.88) !important;
+    border: 0.5px solid rgba(231,225,216,.80) !important;
+  }
+
+  /* ═══ HEAD SECTION — 移除白色背景 ═══ */
+  .head {
+    background: rgba(246,242,235,.72) !important;
+  }
+  .foot {
+    background: rgba(246,242,235,.72) !important;
+  }
+
+  /* ═══ RADIO INPUT — 同步去组件化 ═══ */
+  input[type="radio"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border: 1px solid var(--gold);
+    border-radius: 0;
+    background: transparent;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-top: 1px;
+    position: relative;
+    transition: background .12s;
+  }
+  input[type="radio"]:checked {
+    background: transparent;
+    border-color: var(--gold);
+  }
+  input[type="radio"]:checked::after {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    background: var(--gold);
+  }
+  input[type="radio"]:focus {
+    outline: none;
+  }
+
+  /* intro-hero 布局已在主 CSS 中定义，此处无需 override */
+
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- 
+  Font loading strategy:
+  1. Playfair Display  — cover H1 only (display tier)
+  2. Cormorant Garamond — all module headings (heading tier)
+  3. Tenor Sans        — all body / UI text (body tier)
+  4. DM Mono           — all numeric scores (mono tier)
+  5. Noto fallbacks    — Chinese text
+-->
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Tenor+Sans&family=DM+Mono:wght@400;500&family=Noto+Serif+SC:wght@400;500;600&family=Noto+Sans+SC:wght@400;500&display=swap" rel="stylesheet">
+
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <button class="back" type="button" onclick="goPrev()">← 返回</button>
+    <div class="step" id="stepText">Step 1 / 11 · 封面</div>
+    <div class="progress" id="progress"></div>
+  </div>
+
+  <section class="hero" id="heroSection">
+    <div class="kicker">StayLens Full Flow</div>
+    <h1 class="title" id="heroTitle">体验判断</h1>
+    <p class="desc" id="heroDesc">依次完成六个体验维度的评分，再经过风险修正与价值判断，最终生成一份有据可查的住宿评价。</p>
+    <div class="hint" id="heroHint">评价维度 → 风险修正 → 价值判断 → 生成结果</div>
+  </section>
+
+  <div class="summary-strip" id="summaryStrip">
+    <section class="summary-overall">
+      <div class="summary-label">总体表现</div>
+      <div class="summary-score-row">
+        <div class="summary-big" id="overallScore">3.0</div>
+        <div class="verdict mid" id="overallVerdict">中性成立</div>
+      </div>
+      <div class="summary-text" id="overallNote">基础体验大体成立，但暂时没有形成明显说服力。</div>
+    </section>
+
+    <section class="summary-dims">
+      <div class="summary-label">维度概览</div>
+      <div class="dim-chip-row" id="summary"></div>
+    </section>
+  </div>
+
+  <div id="pageHost"></div>
+</div>
+
+<script>
+const schema = [
+  {
+    id: "location",
+    name: "区位与到达",
+    core: "它在功能上是便利，还是负担。",
+    items: [
+      {id:"location_irreplaceable",name:"区位便利性",hint:"评价要点：从餐饮、出行、散步等基础动线维度，评估入住期间日常出行的整体便利程度，区位是否形成实质支撑。",low:"位置普通，缺乏明确优势",mid:"区位基本成立，具备一定便利性",high:"区位优势明确，是选择这家店的重要理由之一"},
+      {id:"location_access",name:"到达成本",hint:"评价要点：从主要交通节点（机场、高铁站、市区）抵达酒店的全程耗时、换乘复杂度与最后一公里的顺畅程度。",low:"到达过程折腾，明显消耗体验",mid:"到达成本基本可接受",high:"到达顺畅，对整体体验形成正向加成"},
+      {id:"location_transport",name:"交通便利性",hint:"评价要点：从地铁、打车、停车等维度，评估日常出行方式的可及性与稳定性，是否无需额外规划即可正常使用。",low:"交通选项有限，出行明显费力",mid:"交通基本可用，日常出行无大障碍",high:"交通便利，出行无须额外规划"},
+      {id:"location_surrounding",name:"周边功能配套",hint:"评价要点：从便利店、餐饮选择、步行空间等维度，评估酒店周边基础生活配套的完整程度与可达性。",low:"周边功能配套存在明显短板",mid:"周边配套基本够用",high:"周边配套成熟，日常使用非常顺手"},
+      {id:"location_quiet",name:"安静度与私密性",hint:"评价要点：从车流、人群、周边活动或相邻区域等来源，评估外部干扰对休息质量与私密性的实际影响程度。",low:"存在明显噪音或干扰",mid:"整体较安静，偶有轻微波动",high:"几乎无干扰，私密性与安静度表现优秀"},
+      {id:"scene_support",name:"景观与场景资源",hint:"评价要点：从景观条件、街区气质或自然环境等维度，评估周边资源对酒店整体体验的实质支撑程度，是否构成选择该酒店的独立理由。",low:"周边资源支撑很弱，缺乏吸引力",mid:"有一定场景加成，但不构成核心理由",high:"场景资源本身就是选择理由"}
+    ]
+  },
+  {
+    id: "design",
+    name: "空间与设计",
+    core: "是否既好看，又能住。",
+    items: [
+      {id:"design_function",name:"功能合理性",hint:"评价要点：从动线规划、插座布局、开关逻辑、洗漱区设计、收纳空间等维度，评估空间设计是否符合真实使用习惯，而非仅服务于视觉呈现。",low:"动线、插座、储物等存在明显使用障碍",mid:"功能布局基本合理，日常使用顺畅",high:"设计贴合真实使用习惯，效率和体感都很顺"},
+      {id:"design_scale",name:"空间比例与舒适度",hint:"评价要点：从进入时的第一印象与长时间停留的体感，评估房间整体空间比例带来的宽裕感与舒适度。",low:"空间压抑或拥挤",mid:"空间比例基本达标",high:"空间体感舒展，停留舒适"},
+      {id:"design_aesthetic",name:"审美完成度",hint:"评价要点：从整体风格语言的统一程度与视觉完成度，评估是否存在风格断层、元素拼凑或局部不协调的情况。",low:"风格混乱或完成度不足",mid:"审美方向清晰，整体协调",high:"审美克制统一，完成度高"},
+      {id:"design_material",name:"材料与细节质感",hint:"评价要点：从材料选用、五金工艺、边角处理等细部维度，评估近距离审视下的质感表现是否与整体定位相符。",low:"材料粗糙或细节处理较弱",mid:"质感基本达标",high:"材料、五金与细节都体现出稳定质感"},
+      {id:"design_local",name:"在地表达",hint:"评价要点：从地方性文化或自然元素在空间中的融入方式，评估在地表达是否自然成立，或仅作为视觉包装而缺乏实质关联。",low:"几乎没有在地表达",mid:"有基础在地符号，但不算核心优势",high:"在地表达自然且有效，能构成体验记忆点"}
+    ]
+  },
+  {
+    id: "service",
+    name: "服务体系",
+    core: "快不快、稳不稳、省不省心。",
+    items: [
+      {id:"service_speed",name:"响应效率",hint:"评价要点：从提出需求到获得回应的时间效率，评估是否存在明显等待或需多次跟进才能推进的情况。",low:"响应明显滞后，影响体验",mid:"响应基本及时",high:"响应高效，几乎没有等待感"},
+      {id:"service_consistency",name:"稳定性",hint:"评价要点：从不同班次、不同员工之间的服务水准一致性，评估是否存在明显的个体差异或时段性波动。",low:"不同班次、不同人员表现差异明显",mid:"整体服务较稳定",high:"执行一致性高，波动很小"},
+      {id:"service_anticipation",name:"预判能力",hint:"评价要点：从服务人员对客人需求的理解深度与主动跟进能力，评估是否能在明确表达之前或之初即作出有效响应。",low:"基本靠客人反复提醒",mid:"对明确需求能正常跟进",high:"能适度预判需求，减少客人沟通成本"},
+      {id:"service_boundary",name:"边界感",hint:"评价要点：从服务介入的时机与频率，评估在需要时能否及时出现，在不需要时是否造成不必要干扰。",low:"要么过度打扰，要么完全缺位",mid:"边界感基本合理",high:"服务克制精准，在需要时出现，不需要时不打扰"},
+      {id:"service_personal",name:"个体亮点",hint:"评价要点：从整体服务过程中，评估是否存在超出预期的个体表现或服务细节，足以成为入住体验的正向记忆点。",low:"几乎没有记忆点",mid:"存在基础亮点",high:"有明显加分的个体服务细节"}
+    ]
+  },
+  {
+    id: "fb",
+    name: "餐饮产品",
+    core: "不必惊艳，但不能拖后腿。",
+    items: [
+      {id:"food_stability",name:"出品稳定性",hint:"评价要点：从不同时段、不同品类之间的餐饮水准一致性，评估是否存在明显失误或前后落差过大的情况。",low:"出品波动大，容易踩雷",mid:"整体稳定，基本达标",high:"稳定性高，可以放心重复选择"},
+      {id:"food_completeness",name:"餐饮完整度",hint:"评价要点：从品类覆盖与供给结构，评估餐饮体系是否达到该价位的基础预期，是否存在明显的品类缺失或结构性不完整。",low:"品类与结构明显不足",mid:"基础完整度合格",high:"完整度高，兼顾常规与特色需求"},
+      {id:"food_quality",name:"食材与品质感",hint:"评价要点：从食材选用与整体出品表现，评估品质感是否具备说服力，是否与酒店整体定位相符。",low:"品质感明显偏弱",mid:"品质处于可接受区间",high:"品质稳定且具备一定说服力"},
+      {id:"food_local",name:"在地特色",hint:"评价要点：从食材来源、烹饪方式或饮食文化呈现等维度，评估在地特色是否真实成立，而非仅停留于菜单表述层面。",low:"几乎没有在地特色",mid:"有基础在地元素",high:"在地特色真实有效，不只是表面包装"},
+      {id:"food_experience",name:"用餐体验",hint:"评价要点：从用餐环境、等位效率与餐中服务等维度，评估整体用餐过程是否顺畅，是否存在明显拖累体验的环节。",low:"环境、等位或服务明显拖累用餐",mid:"整体用餐体验可接受",high:"环境与服务都对餐饮形成加分"}
+    ]
+  },
+  {
+    id: "vibe",
+    name: "秩序与客群适配",
+    core: "空间究竟在服务住客，还是服务流量。",
+    items: [
+      {id:"vibe_crowdfit",name:"客群匹配度",hint:"评价要点：从实际客群的消费行为与气质特征，评估其与酒店产品定位的契合程度，是否产生明显的场景割裂感。",low:"客群与场景存在明显冲突",mid:"匹配度基本合理",high:"人群气质与场景定位高度一致"},
+      {id:"vibe_density",name:"人群密度与干扰程度",hint:"评价要点：从通行效率、等候时长、噪音水平等维度，评估公共区域的实际人群密度对整体体验的干扰程度。",low:"密度偏高，干扰明显",mid:"密度控制基本达标",high:"整体低干扰，秩序稳定"},
+      {id:"vibe_order",name:"秩序与管理感",hint:"评价要点：从空间秩序的整体稳定性与管理介入的有效性，评估酒店是否以住客体验为优先，而非以客流吸引为导向。",low:"秩序感弱，管理缺位",mid:"秩序基本稳定",high:"秩序良好，管理感清晰但不生硬"},
+      {id:"vibe_ambience",name:"停留意愿与氛围感",hint:"评价要点：从酒店整体氛围对主动停留意愿的影响，评估是否有足够吸引力让住客在基本住宿需求之外选择在酒店内停留。",low:"氛围让人想快点离开",mid:"氛围中性，可待可不待",high:"氛围舒服，停留感好，愿意多待"},
+      {id:"vibe_consistency",name:"场域一致性",hint:"评价要点：从客房、公区、走廊、餐厅等不同区域在氛围与完成度上的表现，评估整体是否一致，是否存在明显降级或风格断层。",low:"不同区域落差明显，体验割裂",mid:"整体基本一致，偶有差异",high:"各场域气质统一，体验连贯"}
+    ]
+  },
+  {
+    id: "facility",
+    name: "设施与运维",
+    core: "硬件是否掉链子。",
+    items: [
+      {id:"facility_state",name:"硬件状态",hint:"评价要点：从家具、设备、卫浴等硬件的实际维护状态，评估是否存在明显老化、损耗或影响正常使用的问题。",low:"老旧、损耗感明显",mid:"状态基本达标",high:"状态稳定，维护较好"},
+      {id:"facility_clean",name:"清洁维护",hint:"评价要点：从灰尘、污渍、异味、死角处理等维度，评估房间及卫浴的清洁维护水准是否达到该价位的基础标准。",low:"清洁维护存在明显问题",mid:"清洁维护处于正常水平",high:"清洁与维护都较为扎实"},
+      {id:"facility_usability",name:"设备易用性",hint:"评价要点：从灯光、淋浴、开关、窗帘、电视等设备的操作逻辑，评估使用是否直觉清晰，是否存在不必要的理解或操作成本。",low:"不好用，学习成本高",mid:"可正常使用",high:"易用性高，几乎不增加理解成本"},
+      {id:"facility_sleep",name:"睡眠系统",hint:"评价要点：从床品质量、遮光效果、空调性能、隔音条件等维度，综合评估酒店对深度休息的实际支撑能力。",low:"床品、隔音或温控拖累睡眠",mid:"睡眠系统基本达标",high:"睡眠系统稳定，是重要加分项"},
+      {id:"facility_defect",name:"缺陷率",hint:"评价要点：从入住全程出现的硬件故障、功能失效或细节失误的频率，评估其是否对体验造成持续性干扰。",low:"缺陷点较多，拖累体验",mid:"缺陷率处于正常区间",high:"几乎没有明显缺陷点"}
+    ]
+  },
+  {
+    id: "business_support",
+    name: "商务支持能力",
+    core: "是否真正服务差旅效率。",
+    items: [
+      {id:"business_network",name:"网络与办公便利性",hint:"评价要点：从网络稳定性、插座配置、桌面空间等维度，评估是否满足视频会议、文档处理及设备充电等基础办公需求。",low:"网络或办公支持明显拖后腿",mid:"基本满足办公需求",high:"网络、插座与办公便利性都较成熟"},
+      {id:"business_flexibility",name:"入住退房灵活性",hint:"评价要点：从早到、延迟退房、行李寄存、快速开票等差旅常见需求，评估酒店的响应能力与灵活适配程度。",low:"灵活性弱，行程适配差",mid:"灵活性基本达标",high:"对差旅节奏有较好适配能力"},
+      {id:"business_meeting",name:"会议与配套支持",hint:"评价要点：从会客空间、临时会议条件、打印服务、前台商务协助等维度，评估商务配套是否完整且清晰可用。",low:"几乎没有商务配套",mid:"基础配套可用",high:"具备清晰的商务支持能力"},
+      {id:"business_efficiency",name:"差旅效率支撑",hint:"评价要点：从抵达到离店的全程，评估酒店在流程、配套与响应层面是否有效降低差旅摩擦，而非增加额外协调成本。",low:"不能有效降低差旅摩擦",mid:"整体效率支撑可接受",high:"明显提升差旅流程效率"}
+    ]
+  }
+];
+
+// ─── 模式维度过滤规则（直接继承蓝色版本逻辑，无手写 schema 映射）────────────
+// 通用 / 度假：6维，items 全量展示
+// 商旅：7维（追加 business_support），部分维度过滤 items
+const MODE_ITEM_FILTER = {
+  general: {
+    // 全量展示：无过滤
+  },
+  resort: {
+    // 度假模式：location 去掉 location_transport（交通便利性偏商旅导向）
+    location: ['location_irreplaceable','location_access','location_surrounding','location_quiet','scene_support']
+  },
+  business: {
+    // 商旅模式：location 精简至效率相关三项（含 location_transport）
+    location: ['location_access','location_transport','location_quiet'],
+    design: ['design_function','design_scale'],
+    vibe: ['vibe_density','vibe_order']
+  }
+};
+
+function getCurrentModeKey() {
+  return (state.modeSetup && state.modeSetup.mode) || 'general';
+}
+
+// ─── 价值判断子项：完全继承蓝色版本结构 ─────────────────────────────────────
+// 通用 / 度假：value_competition / value_hardware / value_service / value_scene / value_substitute
+// 商旅：       value_competition / value_hardware / value_service / value_business_support / value_substitute
+const VALUE_SUBITEMS = {
+  value_competition: { name: '同区竞争力', weight: 0.24, modes: ['general','resort','business'], anchors: ['同区同价位下缺乏竞争优势。','竞争力基本成立。','在同区同价位里具备明显优势。'] },
+  value_hardware: { name: '硬件匹配', weight: 0.20, modes: ['general','resort','business'], anchors: ['硬件与价格明显不匹配。','硬件与价格基本匹配。','硬件明显优于同价位预期。'] },
+  value_service: { name: '服务匹配', weight: 0.22, modes: ['general','resort','business'], anchors: ['服务难以支撑当前价格。','服务匹配度基本成立。','服务是当前价格成立的重要支撑。'] },
+  value_scene: { name: '资源 / 场景匹配', weight: 0.18, modes: ['general','resort'], anchors: ['资源与场景不足以支撑定价。','资源与价格基本匹配。','景观、氛围或目的地感显著支撑当前价格。'] },
+  value_business_support: { name: '商务支持匹配', weight: 0.18, modes: ['business'], anchors: ['商务支持不足以支撑定价。','商务支持与价格基本匹配。','商务支持能力明显构成价格支撑。'] },
+  value_substitute: { name: '不可替代性', weight: 0.16, modes: ['general','resort','business'], anchors: ['替代性强，很容易被同类替代。','替代性适中。','替代性较低，具备较强唯一性。'] }
+};
+
+const VALUE_ITEM_EXPLANATIONS = {
+  value_competition: { desc: '同价位里，它是不是更有说服力。', hint: '评价要点：在同城同价位范围内，该酒店的综合体验是否具备足够说服力，能否经得起横向比较。', notIncluded: '完全跨价位、跨城市或跨类型的对比。' },
+  value_hardware: { desc: '硬件是否配得上这个价格。', hint: '评价要点：从房间条件、设施配置与维护状态，评估硬件水准是否与当前价格形成合理匹配。', notIncluded: '景观、服务或品牌带来的额外溢价。' },
+  value_service: { desc: '服务是否配得上价格。', hint: '评价要点：结合该价位的合理预期，评估实际服务水准是否达到应有的兑现程度。', notIncluded: '个别员工的好感分是否掩盖了体系短板。' },
+  value_scene: { desc: '场景和资源是否足以支撑溢价。', hint: '评价要点：从场景独特性与资源稀缺性，评估其是否足以构成支撑溢价的实质理由。', notIncluded: '仅仅因为装修好看就给高价合理化。' },
+  value_business_support: { desc: '商务支持是否真正提升差旅效率。', hint: '评价要点：从差旅全程的流程效率与配套完整度，评估酒店是否有效降低了差旅摩擦成本。', notIncluded: '度假型体验或景观资源带来的溢价理由。' },
+  value_substitute: { desc: '它是否容易被替代。', hint: '评价要点：从体验的独特性与稀缺程度，评估该酒店在同价位市场中是否具备不可替代性。', notIncluded: '品牌知名度高但实际体验并不稀缺。' }
+};
+
+const PREMIUM_CONDITIONS = {
+  irreplaceable: '具备不可替代资源（核心景观 / 稀缺地段）',
+  design: '空间设计完成度高，功能与审美统一',
+  service: '服务体系成熟，稳定性和响应效率都在线',
+  experience: '具备稀缺体验或专属记忆点',
+  atmosphere: '公共空间与整体氛围明显优于同区间产品',
+  facility: '设施、配套或景观使用体验形成独立吸引力',
+  privacy: '私密性、低密度或专属感明显优于常规产品',
+  brand: '具备目的地代表性或品牌稀缺性'
+};
+
+function getVisibleValueItems() {
+  const modeKey = getCurrentModeKey();
+  const items = Object.entries(VALUE_SUBITEMS)
+    .filter(([_, item]) => item.modes.includes(modeKey))
+    .map(([id, item]) => ({ id, ...item }));
+  const total = items.reduce((sum, item) => sum + item.weight, 0) || 1;
+  return items.map(item => ({ ...item, normalizedWeight: item.weight / total }));
+}
+
+function getValueScore() {
+  const items = getVisibleValueItems();
+  if (!items.length) return 3.0;
+  const score = items.reduce((sum, item) => sum + (Number(state[item.id]) || 3) * item.normalizedWeight, 0);
+  return Math.max(1, Math.min(5, score));
+}
+
+function getValueVerdictLabel(score = getValueScore()) {
+  if (score >= 4.2) return '明显值得';
+  if (score >= 3.6) return '略有惊喜';
+  if (score >= 2.8) return '基本匹配';
+  if (score >= 2.3) return '略微不值';
+  return '明显不值';
+}
+
+function getPremiumConditionKeys() {
+  return Object.keys(PREMIUM_CONDITIONS).filter(key => state[key]);
+}
+
+function getPremiumConclusion() {
+  const count = getPremiumConditionKeys().length;
+  if (count === 0) return '溢价不成立';
+  if (count <= 2) return '溢价支撑有限成立';
+  if (count <= 4) return '溢价基本成立';
+  return '溢价成立';
+}
+
+function getValueExplanation(id) {
+  return VALUE_ITEM_EXPLANATIONS[id] || { desc: '该指标用于判断价格与体验是否匹配。', hint: '请结合本次真实体验进行判断。', notIncluded: '' };
+}
+
+const DIMENSION_STAGE_START = 3;
+function getDimensionStageEnd() {
+  return DIMENSION_STAGE_START + getVisibleDimensions().length - 1;
+}
+function getRiskStage() {
+  return getDimensionStageEnd() + 1;
+}
+function getValueStage() {
+  return getDimensionStageEnd() + 2;
+}
+function getResultStage() {
+  return getDimensionStageEnd() + 3;
+}
+const TOTAL_STEPS = 7;
+
+function getVisibleDimensions() {
+  const modeKey = getCurrentModeKey();
+  // 商旅模式：6 基础维度 + business_support 第 7 维
+  // 通用 / 度假：6 基础维度（schema 前 6 项）
+  if (modeKey === 'business') return schema; // schema 含全部 7 维
+  return schema.filter(dim => dim.id !== 'business_support'); // 非商旅隐藏第 7 维
+}
+
+function getVisibleItems(dim) {
+  const modeKey = getCurrentModeKey();
+  const filter = MODE_ITEM_FILTER[modeKey] || {};
+  if (!Object.prototype.hasOwnProperty.call(filter, dim.id)) return dim.items; // 无过滤，全量
+  const allowedIds = filter[dim.id] || [];
+  return dim.items.filter(item => allowedIds.includes(item.id));
+}
+
+const fatalOptions = [
+  ["fatal_hygiene","明显卫生问题","床品、浴室、异味等问题已经越过可接受边界"],
+  ["fatal_safety","安全感问题","门锁、人员、监控或整体安全感让人不安"],
+  ["fatal_noise","严重噪音","已影响入睡或持续休息"],
+  ["fatal_misleading","明显照骗","宣传与实际出现明显错位"]
+];
+const structuralOptions = [
+  ["struct_layout","动线 / 布局反人性","使用过程中频繁被打断，顺手度不足"],
+  ["struct_service","服务体系混乱","信息不一致、流程断裂、前后台衔接差"],
+  ["struct_aging","设施老化明显","硬件状态拖累整体体验"],
+  ["struct_fb","餐饮明显拖后腿","餐饮系统无法支撑整体价位"]
+];
+const layoutDetailOptions = [
+  ["layout_bathroom","卫浴动线别扭","洗漱、淋浴、如厕之间切换不顺手"],
+  ["layout_storage","收纳不足","行李、衣物、随身物品缺少合理落点"],
+  ["layout_switch","开关逻辑混乱","灯光、窗帘、总控位置不直觉"],
+  ["layout_socket","插座配置不合理","床头、桌面或洗手台附近供电不足"],
+  ["layout_workspace","桌面 / 办公区不好用","办公、化妆、放电脑都不顺手"],
+  ["layout_drywet","干湿分离不佳","洗澡后容易影响后续使用"],
+  ["layout_acoustic","隔音或睡眠动线受扰","门外、设备声或房内布局影响休息"],
+  ["layout_misc","其他反人性细节","存在难以忽略但不在上列的问题"]
+];
+const expectationOptions = [
+  ["gap_filter","网红滤镜过重","实际体验落差明显大于预期"],
+  ["gap_positioning","定位模糊","度假 / 商务 / 设计表达不够清晰"],
+  ["gap_price","价格预期过高导致失望","花钱前的想象显著高于实际"],
+  ["gap_marketing","宣传重点与真实体验不一致","主卖点并没有真的成立"]
+];
+const minorOptions = [
+  ["minor_breakfast","早餐一般","不是大问题，但缺少记忆点"],
+  ["minor_service","服务偶有波动","有瑕疵但未伤及整体"],
+  ["minor_env","周边一般","中性偏弱，但仍可接受"],
+  ["minor_room","房间略小","功能够用，但舒展感有限"]
+];
+
+const riskDetailMap = {
+  fatal_hygiene: [
+    ["fatal_hygiene_bedding","床品观感不洁","床单、被套、枕套存在脏污或不清爽感"],
+    ["fatal_hygiene_bath","卫浴清洁不过关","马桶、淋浴区、台盆等存在明显卫生问题"],
+    ["fatal_hygiene_smell","异味明显","房内或卫浴存在持续异味"],
+    ["fatal_hygiene_misc","其他卫生硬伤","存在难以忽略的卫生边界问题"]
+  ],
+  fatal_safety: [
+    ["fatal_safety_lock","门锁或门禁让人不安","门锁松动、门禁逻辑不稳或安全感不足"],
+    ["fatal_safety_staff","人员出入管理混乱","陌生人员、访客或服务人员动线让人不安"],
+    ["fatal_safety_monitor","监控 / 照明 / 公区安全感不足","走廊、电梯厅、公区缺乏基本安全感"],
+    ["fatal_safety_misc","其他安全边界问题","存在难以忽略的安全隐患"]
+  ],
+  fatal_noise: [
+    ["fatal_noise_street","外部噪音过强","街道、酒吧、施工或车流噪音明显"],
+    ["fatal_noise_room","房间隔音失守","隔壁、走廊、上下层噪音清晰可辨"],
+    ["fatal_noise_device","设备噪音明显","空调、新风、电梯或其他设备声持续干扰"],
+    ["fatal_noise_misc","其他休息干扰","存在持续影响入睡的噪音来源"]
+  ],
+  fatal_misleading: [
+    ["fatal_misleading_view","景观宣传与实际不符","主图景观、窗型或楼层差异明显"],
+    ["fatal_misleading_room","房型表达失真","房间大小、布局或新旧程度与宣传不符"],
+    ["fatal_misleading_facility","配套宣传偏差","泳池、酒廊、餐饮、公区等宣传与实际落差大"],
+    ["fatal_misleading_misc","其他宣传错位","存在明显误导性表达"]
+  ],
+  struct_layout: layoutDetailOptions,
+  struct_service: [
+    ["struct_service_info","信息前后不一致","前台、礼宾、客服或餐饮口径不统一"],
+    ["struct_service_process","流程衔接断裂","入住、送物、退房、投诉处理等流程割裂"],
+    ["struct_service_response","响应慢且不稳定","同类需求的处理速度和质量波动明显"],
+    ["struct_service_misc","其他系统性服务问题","不是单点失误，而是机制层面不顺"]
+  ],
+  struct_aging: [
+    ["struct_aging_hardware","硬件陈旧","家具、卫浴、五金、地毯等老化明显"],
+    ["struct_aging_maintenance","维护不到位","破损、松动、渗漏、掉漆等问题可见"],
+    ["struct_aging_system","机电系统拖后腿","空调、照明、排风、热水等基础系统状态一般"],
+    ["struct_aging_misc","其他老化问题","整体保养状态无法支撑当前定位"]
+  ],
+  struct_fb: [
+    ["struct_fb_breakfast","早餐体系偏弱","品类、完成度或体验无法支撑价位"],
+    ["struct_fb_service","餐饮服务跟不上","补餐、收台、引导或出餐节奏不稳定"],
+    ["struct_fb_quality","核心出品失守","味道、温度、稳定性存在明显短板"],
+    ["struct_fb_misc","其他餐饮系统问题","餐饮不是单点失误，而是整体能力偏弱"]
+  ],
+  gap_filter: [
+    ["gap_filter_photo","图片修饰过强","线上照片与真实空间氛围差距大"],
+    ["gap_filter_angle","拍摄角度误导","通过机位回避真实短板"],
+    ["gap_filter_public","公区比客房更会拍","被公共区域吸引，但客房支撑不足"],
+    ["gap_filter_misc","其他滤镜式包装","主要卖点被包装感放大"]
+  ],
+  gap_positioning: [
+    ["gap_positioning_business","商务与度假定位打架","不同客群需求没有被真正梳理"],
+    ["gap_positioning_design","设计表达与服务定位不统一","表面风格与实际能力不匹配"],
+    ["gap_positioning_brand","品牌话术大于产品本体","定位概念成立，但落地不足"],
+    ["gap_positioning_misc","其他定位模糊问题","产品调性没有真正站稳"]
+  ],
+  gap_price: [
+    ["gap_price_season","价格窗口不友好","当前价格明显高于合理体验区间"],
+    ["gap_price_expectation","前期期待被抬太高","宣传、品牌或目的地让预期过高"],
+    ["gap_price_compare","横向比较后失望","同价位替代品更有说服力"],
+    ["gap_price_misc","其他价格落差","花钱后的感受低于付款前预期"]
+  ],
+  gap_marketing: [
+    ["gap_marketing_core","主卖点没有站住","宣传重点并未成为实际强项"],
+    ["gap_marketing_service","服务承诺未兑现","承诺的礼遇、升级、体验感并未完成"],
+    ["gap_marketing_facility","配套亮点被高估","宣传中的重点设施实际说服力不足"],
+    ["gap_marketing_misc","其他宣传错位","表达重点与真实体验不一致"]
+  ],
+  minor_breakfast: [
+    ["minor_breakfast_taste","味道普通","能吃，但不想专门记住"],
+    ["minor_breakfast_variety","选择偏少","品类够用但层次不够"],
+    ["minor_breakfast_temp","温度 / 新鲜度一般","热食温度或食材状态不稳定"],
+    ["minor_breakfast_misc","其他小问题","存在轻微但可接受的问题"]
+  ],
+  minor_service: [
+    ["minor_service_delay","偶发响应慢","单次需求处理不够及时"],
+    ["minor_service_tone","服务语气偶有生硬","个别员工状态不稳"],
+    ["minor_service_followup","后续跟进一般","问题解决了，但不够完整"],
+    ["minor_service_misc","其他轻微波动","对整体印象有小幅影响"]
+  ],
+  minor_env: [
+    ["minor_env_noise","周边略吵","但尚未达到致命风险程度"],
+    ["minor_env_texture","城市界面一般","周边质感中性偏弱"],
+    ["minor_env_convenience","便利性普通","周边配套不算拖后腿，也不加分"],
+    ["minor_env_misc","其他环境小瑕疵","存在轻微环境短板"]
+  ],
+  minor_room: [
+    ["minor_room_area","面积偏紧","基本功能有，但舒展感有限"],
+    ["minor_room_storage","收纳偏少","行李摆放与物品落点不够从容"],
+    ["minor_room_bedside","床侧余量不足","上下床、走动或开箱略局促"],
+    ["minor_room_misc","其他小体量问题","不构成硬伤，但影响从容感"]
+  ]
+};
+
+const premiumOptions = [
+  ["premium_view","景观资源","海景 / 雪山 / 城市天际线等明确卖点"],
+  ["premium_location","地理位置","核心地段或目的地优势明显"],
+  ["premium_brand","品牌溢价","品牌本身带来稳定预期"],
+  ["premium_design","设计表达","空间本身具备审美与记忆价值"],
+  ["premium_service","服务体验","服务明显高于同价位平均线"],
+  ["premium_rare","稀缺性","产品少见、替代性弱"],
+  ["premium_none","无明显溢价支撑","暂时看不到清晰的溢价理由"]
+];
+
+const state = {
+  valueChoice: '基本匹配',
+  revisitChoice: '看情况',
+  riskNote: '',
+  noteMemorable: '',
+  noteDissatisfied: '',
+  noteOneLine: '',
+  noteRevisit: '',
+  noteOther: '',
+  outputMode: '专业评价版',
+  writingStyle: '克制专业'
+};
+schema.forEach(dim => dim.items.forEach(item => state[item.id] = 3.0));
+Object.keys(VALUE_SUBITEMS).forEach(id => state[id] = 3.0);
+Object.keys(PREMIUM_CONDITIONS).forEach(id => state[id] = false);
+[...fatalOptions, ...structuralOptions, ...layoutDetailOptions, ...expectationOptions, ...minorOptions, ...premiumOptions].forEach(([id]) => state[id] = false);
+Object.values(riskDetailMap).flat().forEach(([id]) => state[id] = false);
+state.uiExpanded = {};
+
+// 追踪已访问维度（用 dim.id 标记）
+const visitedDims = new Set();
+
+let currentStage = 0; // 0 cover, 1 mode, 2 context, 3-8 dims, 9 risk, 10 value, 11 result
+
+const modeWeightRows = ['区位与到达', '空间与设计', '服务体系', '餐饮产品', '秩序与客群适配', '设施与运维', '商务支持能力'];
+const modeModuleRows = ['区位与到达', '空间与设计', '服务体系', '餐饮产品', '秩序与客群适配', '设施与运维', '商务支持能力'];
+const modeMeta = {
+  general: {
+    title: '通用住宿',
+    desc: '适合大多数正常入住场景，兼顾区位、设计、服务、餐饮与设施。',
+    modules: ['区位与到达', '空间与设计', '服务体系', '餐饮产品', '秩序与客群适配', '设施与运维'],
+    weightMap: {
+      '服务体系': '较高',
+      '空间与设计': '中高',
+      '秩序与客群适配': '中等'
+    }
+  },
+  resort: {
+    title: '度假模式',
+    desc: '强调景观资源、氛围停留感、目的地体验与餐饮品质，不只是过夜。',
+    modules: ['区位与到达', '秩序与客群适配', '餐饮产品', '空间与设计', '服务体系'],
+    weightMap: {
+      '秩序与客群适配': '最高',
+      '餐饮产品': '较高',
+      '设施与运维': '中等'
+    }
+  },
+  business: {
+    title: '商旅模式',
+    desc: '强调效率、稳定、睡眠系统、早餐时段适配，不追求过多情绪价值。',
+    modules: ['区位与到达', '服务体系', '设施与运维', '餐饮产品', '空间与设计', '商务支持能力'],
+    weightMap: {
+      '服务体系': '最高',
+      '设施与运维': '较高',
+      '商务支持能力': '中高',
+      '秩序与客群适配': '中等'
+    }
+  }
+};
+state.modeSetup = { mode: 'general' };
+state.context = {
+  hotelName: '',
+  city: '',
+  roomType: '',
+  priceRange: '',
+  accommodationType: '',
+  stayDate: '',
+  stayNights: '',
+  bookingChannel: '',
+  stayPurpose: '',
+  travelCompanion: '',
+  isMember: false,
+  memberLevel: ''
+};
+
+function stageMeta(){
+  if (currentStage === 0) {
+    return {
+      title: 'StayLens',
+      desc: '一套结构化的住宿体验判断系统，将感性印象转化为可追溯的评价依据。',
+      hint: '封面页不显示判断摘要。'
+    };
+  }
+  if (currentStage === 1) {
+    return {
+      title: '评价模式',
+      desc: '确认本次评价的判断口径。模式选择将影响维度权重与评分侧重，是后续所有判断的前提。',
+      hint: '模式确定后，维度结构与系数倾向随之锁定。'
+    };
+  }
+  if (currentStage === 2) {
+    return {
+      title: '基础设定',
+      desc: '记录本次入住的核心上下文信息。这些参数将影响后续判断的预期标准与评价口径。',
+      hint: '上下文信息填写完整，有助于提升最终评价的准确性与可追溯性。'
+    };
+  }
+  if (currentStage >= DIMENSION_STAGE_START && currentStage <= getDimensionStageEnd()) {
+    return {
+      title: '体验判断',
+      desc: '每页对应一个一级维度，聚焦单一判断主题，逐层完成体验评分。',
+      hint: '完成全部维度评分后，进入风险修正与价值判断环节。'
+    };
+  }
+  if (currentStage === getRiskStage()) {
+    return {
+      title: '风险与修正',
+      desc: '此阶段处理可能推翻均分结论的关键问题。一旦相关风险项成立，整体结论将不再受均分保护。',
+      hint: '风险修正的作用在于否决、校准与还原真实判断。'
+    };
+  }
+  if (currentStage === getValueStage()) {
+    return {
+      title: '价值判断',
+      desc: '此阶段不评价体验优劣，而是判断价格与体验是否形成有效匹配，即当前消费是否成立。',
+      hint: '价值判断将体验结论转化为消费决策依据。'
+    };
+  }
+  return {
+    title: '最终结果',
+    desc: '综合体验判断、风险修正与价值评估，生成结构化结论，并输出可直接使用的评价文本。',
+    hint: '此页呈现的是判断结论，而非单纯的分数汇总。'
+  };
+}
+function getProgressMeta(){
+  if (currentStage === 0) return { stepText: '', units: [] };
+  const units = [
+    { key: 'mode', active: currentStage >= 1 ? 1 : 0 },
+    { key: 'context', active: currentStage >= 2 ? 1 : 0 },
+    { key: 'judgement', active: Math.max(0, Math.min(getVisibleDimensions().length, currentStage - 2)) / getVisibleDimensions().length },
+    { key: 'risk', active: currentStage >= getRiskStage() ? 1 : 0 },
+    { key: 'value', active: currentStage >= getValueStage() ? 1 : 0 },
+    { key: 'result', active: currentStage >= getResultStage() ? 1 : 0 }
+  ];
+  const stepNum = currentStage <= 2 ? currentStage : currentStage <= getDimensionStageEnd() ? 3 : currentStage === getRiskStage() ? 4 : currentStage === getValueStage() ? 5 : 6;
+  let label = '评价模式';
+  if (currentStage === 2) label = '基础设定';
+  else if (currentStage >= DIMENSION_STAGE_START && currentStage <= getDimensionStageEnd()) label = `体验判断 ${currentStage - 2} / ${getVisibleDimensions().length}`;
+  else if (currentStage === getRiskStage()) label = '风险与修正';
+  else if (currentStage === getValueStage()) label = '价值判断';
+  else if (currentStage === getResultStage()) label = '最终结果';
+  return { stepText: `Step ${stepNum} / ${TOTAL_STEPS} · ${label}`, units };
+}
+
+function buildProgress() {
+  const wrap = document.getElementById('progress');
+  const topbar = document.querySelector('.topbar');
+  const stepTextEl = document.getElementById('stepText');
+  const meta = getProgressMeta();
+  if (currentStage === 0) {
+    topbar.classList.add('cover-topbar');
+    stepTextEl.textContent = '';
+    wrap.innerHTML = '';
+    return;
+  }
+  topbar.classList.remove('cover-topbar');
+  stepTextEl.textContent = meta.stepText;
+  wrap.innerHTML = '';
+  meta.units.forEach(unit => {
+    const bar = document.createElement('div');
+    bar.className = 'bar';
+    if (unit.active >= 1) bar.classList.add('active');
+    else if (unit.active > 0) bar.classList.add('partial');
+    bar.style.setProperty('--fill', String(unit.active));
+    wrap.appendChild(bar);
+  });
+}
+
+function verdictText(score) {
+  if (score >= 4) return ["明显成立", "high", "基础体验已经具备明确加分感。"];
+  if (score >= 2.8) return ["中性成立", "mid", "基础体验大体成立，但暂时没有形成明显说服力。"];
+  return ["偏弱", "low", "基础体验已经出现明显短板，需要依赖修正机制判断。"];
+}
+
+function getDimAvg(dim) {
+  const visibleItems = getVisibleItems(dim);
+  if (!visibleItems.length) return 3.0; // 边界保护：无可见子项时返回默认值
+  const vals = visibleItems.map(i => state[i.id]);
+  return vals.reduce((a,b)=>a+b,0)/vals.length;
+}
+function getOverall() {
+  const visibleDims = getVisibleDimensions();
+  if (!visibleDims.length) return 3.0; // 边界保护：无可见维度时返回默认值
+  return visibleDims.map(getDimAvg).reduce((a,b)=>a+b,0)/visibleDims.length;
+}
+function countChecked(options){
+  return options.filter(([id]) => state[id]).length;
+}
+function downgrade(level){
+  const order = ['强推荐','推荐','中性','不推荐'];
+  const idx = order.indexOf(level);
+  return order[Math.min(order.length - 1, idx + 1)];
+}
+function upgrade(level){
+  const order = ['不推荐','中性','推荐','强推荐'];
+  const idx = order.indexOf(level);
+  return order[Math.min(order.length - 1, idx + 1)];
+}
+function clampLevelToNeutral(level){
+  const ranking = {'强推荐':3,'推荐':2,'中性':1,'不推荐':0};
+  return ranking[level] > ranking['中性'] ? '中性' : level;
+}
+
+
+function getFinalModel(){
+  const baseScore = getOverall();
+  const fatalCount = countChecked(fatalOptions);
+  const structuralCount = countChecked(structuralOptions);
+  const expectationCount = countChecked(expectationOptions);
+  const minorCount = countChecked(minorOptions);
+  const valueScore = getValueScore();
+  const valueLabel = getValueVerdictLabel(valueScore);
+  const premiumConditionCount = getPremiumConditionKeys().length;
+
+  // ── 第一步：结构性问题扣分 ──────────────────────────────────────
+  let adjustedScore = baseScore - structuralCount * 0.3 - (structuralCount >= 2 ? 0.5 : 0);
+  adjustedScore = Math.max(1, adjustedScore);
+
+  // ── 第二步：由分数推基础等级 ────────────────────────────────────
+  // 注意：此时还未施加 fatal 封顶，先得到"无 fatal 干预"的自然等级
+  let level = '不推荐';
+  if (adjustedScore >= 4.2) level = '强推荐';
+  else if (adjustedScore >= 3.5) level = '推荐';
+  else if (adjustedScore >= 2.8) level = '中性';
+
+  // ── 第三步：致命风险压制 ────────────────────────────────────────
+  // 先 clamp 再判断，保证"fatalCount=1 时上限为中性"逻辑真正生效
+  if (fatalCount >= 1) level = clampLevelToNeutral(level); // 上限压到中性
+  if (fatalCount >= 2) level = '不推荐';                   // 2 项及以上直接不推荐
+  // 同步将 adjustedScore 封顶（用于显示，不影响等级判断）
+  if (fatalCount >= 1) adjustedScore = Math.min(adjustedScore, 2.5);
+
+  // ── 第四步：感知偏差降级 ────────────────────────────────────────
+  // expectationCount >= 2：明显的预期落差，结论降一档
+  // expectationCount === 1：轻微，不影响等级，仅影响文案
+  if (expectationCount >= 2) level = downgrade(level);
+
+  // ── 第五步：价值判断修正 ────────────────────────────────────────
+  if (valueScore < 2.3) level = '不推荐';
+  else if (valueScore < 2.8) level = downgrade(level);
+  else if (valueScore >= 4.2) level = upgrade(level);
+  else if (valueScore >= 3.6 && level === '中性') level = '推荐';
+
+  // ── 第六步：溢价支撑保护 ────────────────────────────────────────
+  // 无任何溢价支撑时，强推荐降为推荐
+  if (premiumConditionCount === 0 && level === '强推荐') level = '推荐';
+
+  // ── 第七步：致命风险最终兜底（防止价值判断把 fatal 结果抬回来）─
+  if (fatalCount >= 2) level = '不推荐';
+
+  return {
+    baseScore,
+    adjustedScore,
+    fatalCount,
+    structuralCount,
+    expectationCount,
+    minorCount,
+    valueScore,
+    premiumConditionCount,
+    level,
+    valueLabel,
+  };
+}
+
+function refreshSummary() {
+  const sum = document.getElementById('summary');
+  sum.innerHTML = '';
+  const visibleDims = getVisibleDimensions();
+  const activeDimIdx = (currentStage >= DIMENSION_STAGE_START && currentStage <= getDimensionStageEnd())
+    ? currentStage - DIMENSION_STAGE_START : -1;
+
+  visibleDims.forEach((dim, idx) => {
+    const avg = getDimAvg(dim);
+    const pct = Math.max(0, Math.min(100, (avg / 5) * 100));
+    const isActive  = idx === activeDimIdx;
+    const isVisited = visitedDims.has(dim.id) && !isActive;
+    const isPending = !visitedDims.has(dim.id) && !isActive;
+
+    const row = document.createElement('div');
+    row.className = 'dim-chip' +
+      (isActive  ? ' dim-chip-active'  : '') +
+      (isVisited ? ' dim-chip-visited' : '') +
+      (isPending ? ' dim-chip-pending' : '');
+
+    row.innerHTML = `
+      <div class="dim-chip-top">
+        <div>
+          <div class="dim-chip-index">维度 ${idx + 1}</div>
+          <div class="dim-chip-name">${dim.name}</div>
+        </div>
+        <div class="dim-chip-score">${avg.toFixed(1)}</div>
+      </div>
+      <div class="dim-chip-bar"><div class="dim-chip-fill" style="width:${pct}%"></div></div>
+    `;
+    sum.appendChild(row);
+  });
+
+  const overall = getOverall();
+  document.getElementById('overallScore').textContent = overall.toFixed(1);
+  const [text, cls, note] = verdictText(overall);
+  const v = document.getElementById('overallVerdict');
+  v.textContent = text;
+  v.className = `verdict ${cls}`;
+  document.getElementById('overallNote').textContent = note;
+}
+
+
+function renderCoverStage() {
+  document.body.style.overflow = 'hidden';
+  const host = document.getElementById('pageHost');
+  host.innerHTML = `
+    <section class="intro-hero">
+      <div class="intro-hero-inner">
+        <div class="eyebrow">Structured Hotel Evaluation</div>
+        <h1>StayLens</h1>
+        <p class="tagline">将住宿体验，还原为可判断的结构</p>
+        <div class="cover-actions">
+          <button class="btn primary" type="button" onclick="goNext()">开始评价 →</button>
+        </div>
+      </div>
+      <div class="cover-footnote">
+        <p class="cover-footnote-lead">每一次入住，都值得被认真对待。</p>
+        <p class="cover-footnote-body">多维度逐层拆解住宿体验，<br>判断均有依据，分值皆可追溯。</p>
+      </div>
+    </section>
+  `;
+}
+
+function renderModeModules(meta) {
+  const active = modeModuleRows.filter(label => meta.modules.includes(label));
+  const inactiveCount = modeModuleRows.length - active.length;
+  return `
+    <div class="mode-section-card">
+      <div class="mode-section-head">
+        <div class="mode-section-label">重点参考模块</div>
+        <div class="mode-section-note">${active.length} 项</div>
+      </div>
+      <div class="mode-chip-grid">
+        ${active.map(label => `<span class="mode-compact-chip">${label}</span>`).join('')}
+        ${inactiveCount > 0 ? `<span class="mode-compact-chip muted">其余弱化</span>` : ''}
+      </div>
+    </div>`;
+}
+
+function renderModeWeights(meta) {
+  return `
+    <div class="mode-section-card">
+      <div class="mode-section-head">
+        <div class="mode-section-label">系数倾向</div>
+        <div class="mode-section-note">核心权重</div>
+      </div>
+      <div class="mode-weight-compact">
+        ${modeWeightRows.map(label => {
+          const value = meta.weightMap[label] || '—';
+          const weak = value === '弱化';
+          const empty = value === '—';
+          return `<div class="mode-weight-line${weak ? ' weak' : ''}${empty ? ' empty' : ''}"><span>${label}</span><strong>${value}</strong></div>`;
+        }).join('')}
+      </div>
+    </div>`;
+}
+
+function cleanStateByMode() {
+  const visibleDimIds = getVisibleDimensions().map(d => d.id);
+  schema.forEach(dim => {
+    if (!visibleDimIds.includes(dim.id)) {
+      dim.items.forEach(item => { state[item.id] = 3.0; });
+    }
+  });
+  // 非商旅模式：清除商旅专属价值子项
+  const modeKey = getCurrentModeKey();
+  Object.entries(VALUE_SUBITEMS).forEach(([id, item]) => {
+    if (!item.modes.includes(modeKey)) state[id] = 3.0;
+  });
+  refreshSummary();
+}
+
+function renderModeStage() {
+  const host = document.getElementById('pageHost');
+  const selected = modeMeta[state.modeSetup.mode];
+  const modeCardMeta = {
+    general: {
+      subtitle: 'Standard',
+      summary: '6 个维度 · 权重均衡',
+      chips: [
+        { label: '区位与到达' },
+        { label: '空间与设计' },
+        { label: '服务体系' },
+        { label: '餐饮产品' },
+        { label: '秩序与客群' },
+        { label: '设施与运维' }
+      ]
+    },
+    resort: {
+      subtitle: 'Resort',
+      summary: '6 个维度 · 景观氛围优先',
+      chips: [
+        { label: '区位与到达' },
+        { label: '空间与设计' },
+        { label: '服务体系' },
+        { label: '餐饮产品', emphasis: true, weight: '权重较高' },
+        { label: '秩序与客群', emphasis: true, weight: '权重较高' },
+        { label: '设施与运维' }
+      ]
+    },
+    business: {
+      subtitle: 'Business',
+      summary: '7 个维度 · 效率稳定优先',
+      chips: [
+        { label: '区位与到达' },
+        { label: '服务体系', emphasis: true, weight: '权重最高' },
+        { label: '设施与运维', emphasis: true, weight: '权重较高' },
+        { label: '餐饮产品' },
+        { label: '空间与设计' },
+        { label: '秩序与客群' },
+        { label: '商务支持能力', emphasis: true, weight: '权重较高' }
+      ]
+    }
+  };
+  host.innerHTML = `
+    <section class="mode-shell v10">
+      <div class="kicker">评价框架</div>
+      <h2 class="title">选择评价模式</h2>
+      <p class="desc">请选择与本次入住场景最为契合的评价口径。模式将决定维度权重与评分侧重，对后续判断具有决定性影响。</p>
+      <div class="mode-grid v10" id="modeGrid"></div>
+      <div class="mode-preview-minimal">
+        <div class="mode-preview-copy" id="selectedModePreview">当前模式：<strong style="font-family:var(--font-heading);font-size:18px;font-weight:500;color:var(--ink);letter-spacing:-0.01em;">${selected.title}</strong><br>${selected.desc}</div>
+        <div class="action-right" style="display:flex; justify-content:flex-end; gap:10px; margin-left:auto;">
+          <button class="btn secondary" type="button" onclick="goPrev()">上一步</button>
+          <button class="btn primary" type="button" onclick="goNext()">进入基础设定 →</button>
+        </div>
+      </div>
+    </section>
+  `;
+  const grid = document.getElementById('modeGrid');
+  Object.entries(modeMeta).forEach(([key, meta]) => {
+    const card = document.createElement('div');
+    card.className = 'mode-card' + (state.modeSetup.mode === key ? ' active' : '');
+    const cardMeta = modeCardMeta[key];
+    card.innerHTML = `
+      <div class="mode-subtitle">${cardMeta.subtitle}</div>
+      <h3 class="mode-title">${meta.title}</h3>
+      <div class="mode-desc">${meta.desc}</div>
+      <div class="mode-desc" style="margin-bottom:12px;color:var(--ink-2);">${cardMeta.summary}</div>
+      <div class="chip-list">${cardMeta.chips.map(chip => `
+        <span class="chip"${chip.emphasis ? ' style="border-color:var(--gold);background:var(--gold-soft);display:flex;justify-content:space-between;align-items:center;"' : ''}>
+          <span>${chip.label}</span>${chip.weight ? `<span style="font-family:var(--font-body);font-size:10px;letter-spacing:.08em;color:var(--gold);font-weight:500;margin-left:8px;white-space:nowrap;">${chip.weight}</span>` : ''}
+        </span>`).join('')}</div>
+    `;
+    card.addEventListener('click', () => {
+      state.modeSetup.mode = key;
+      cleanStateByMode();
+      renderModeStage();
+    });
+    grid.appendChild(card);
+  });
+}
+
+function renderContextStage() {
+  const host = document.getElementById('pageHost');
+  const mode = modeMeta[state.modeSetup.mode];
+  host.innerHTML = `
+    <section class="main">
+      <div class="head">
+        <div class="dimtag">Context</div>
+        <h2 class="dimtitle">基础设定</h2>
+        <div class="dimcore">记录本次入住的基础上下文信息。所有填写项均将影响后续维度判断的预期标准与评价口径。</div>
+      </div>
+      <div class="items" style="padding-top:24px;">
+        <div class="grid">
+          <div class="field">
+            <label for="hotelName">酒店名称</label>
+            <input id="hotelName" type="text" placeholder="如：迪庆英迪格酒店" value="${escapeHtml(state.context.hotelName)}">
+          </div>
+          <div class="field">
+            <label for="city">城市</label>
+            <input id="city" type="text" placeholder="如：香格里拉" value="${escapeHtml(state.context.city)}">
+          </div>
+          <div class="field">
+            <label for="roomType">房型</label>
+            <input id="roomType" type="text" placeholder="如：雪山景观房" value="${escapeHtml(state.context.roomType)}">
+          </div>
+          <div class="field">
+            <label for="priceRange">价格区间</label>
+            <input id="priceRange" type="text" placeholder="如：1200–1500 / 晚" value="${escapeHtml(state.context.priceRange)}">
+          </div>
+          <div class="field">
+            <label for="accommodationType">住宿类型</label>
+            <select id="accommodationType">
+              <option value="">请选择</option>
+              <option value="酒店" ${state.context.accommodationType==='酒店'?'selected':''}>酒店</option>
+              <option value="度假酒店" ${state.context.accommodationType==='度假酒店'?'selected':''}>度假酒店</option>
+              <option value="民宿" ${state.context.accommodationType==='民宿'?'selected':''}>民宿</option>
+              <option value="公寓式酒店" ${state.context.accommodationType==='公寓式酒店'?'selected':''}>公寓式酒店</option>
+              <option value="国宾馆 / 招待所" ${state.context.accommodationType==='国宾馆 / 招待所'?'selected':''}>国宾馆 / 招待所</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="stayDate">入住日期</label>
+            <input id="stayDate" type="date" value="${escapeHtml(state.context.stayDate)}">
+          </div>
+          <div class="field">
+            <label for="stayNights">入住天数</label>
+            <input id="stayNights" type="number" min="1" step="1" placeholder="如：2" value="${escapeHtml(state.context.stayNights)}">
+          </div>
+          <div class="field">
+            <label for="bookingChannel">订房渠道</label>
+            <select id="bookingChannel">
+              <option value="">请选择</option>
+              <option value="官方渠道" ${state.context.bookingChannel==='官方渠道'?'selected':''}>官方渠道</option>
+              <option value="携程" ${state.context.bookingChannel==='携程'?'selected':''}>携程</option>
+              <option value="飞猪" ${state.context.bookingChannel==='飞猪'?'selected':''}>飞猪</option>
+              <option value="Agoda" ${state.context.bookingChannel==='Agoda'?'selected':''}>Agoda</option>
+              <option value="Booking" ${state.context.bookingChannel==='Booking'?'selected':''}>Booking</option>
+              <option value="其他" ${state.context.bookingChannel==='其他'?'selected':''}>其他</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="stayPurpose">入住目的</label>
+            <select id="stayPurpose">
+              <option value="">请选择</option>
+              <option value="度假放松" ${state.context.stayPurpose==='度假放松'?'selected':''}>度假放松</option>
+              <option value="商务差旅" ${state.context.stayPurpose==='商务差旅'?'selected':''}>商务差旅</option>
+              <option value="纯过夜 / 中转" ${state.context.stayPurpose==='纯过夜 / 中转'?'selected':''}>纯过夜 / 中转</option>
+              <option value="打卡体验" ${state.context.stayPurpose==='打卡体验'?'selected':''}>打卡体验</option>
+              <option value="纪念日 / 生日" ${state.context.stayPurpose==='纪念日 / 生日'?'selected':''}>纪念日 / 生日</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="travelCompanion">同行类型</label>
+            <select id="travelCompanion">
+              <option value="">请选择</option>
+              <option value="独自入住" ${state.context.travelCompanion==='独自入住'?'selected':''}>独自入住</option>
+              <option value="情侣 / 伴侣" ${state.context.travelCompanion==='情侣 / 伴侣'?'selected':''}>情侣 / 伴侣</option>
+              <option value="朋友同行" ${state.context.travelCompanion==='朋友同行'?'selected':''}>朋友同行</option>
+              <option value="家庭出行" ${state.context.travelCompanion==='家庭出行'?'selected':''}>家庭出行</option>
+              <option value="同事 / 商务同行" ${state.context.travelCompanion==='同事 / 商务同行'?'selected':''}>同事 / 商务同行</option>
+            </select>
+          </div>
+          <div class="field full">
+            <label>是否会员</label>
+            <div class="inline-group">
+              <label class="inline-option"><input type="radio" name="isMember" value="false" ${!state.context.isMember?'checked':''}> 否</label>
+              <label class="inline-option"><input type="radio" name="isMember" value="true" ${state.context.isMember?'checked':''}> 是</label>
+            </div>
+          </div>
+          <div id="memberLevelField" class="field full ${state.context.isMember ? '' : 'hidden'}">
+            <label for="memberLevel">会员等级</label>
+            <input id="memberLevel" type="text" placeholder="如：白金卡、钻石卡、Ambassador" value="${escapeHtml(state.context.memberLevel)}">
+          </div>
+        </div>
+      </div>
+      <div class="foot">
+        <div class="state-box" style="flex:1;min-width:260px;">
+          <div class="state-title">当前已选择模式</div>
+          <pre>${mode.title}
+${mode.desc}</pre>
+        </div>
+        <div class="actions">
+          <button class="btn secondary" type="button" onclick="goPrev()">上一步</button>
+          <button class="btn primary" type="button" onclick="goNext()">进入体验判断 →</button>
+        </div>
+      </div>
+    </section>
+  `;
+  bindContextStage();
+}
+
+function bindContextStage(){
+  const bindings = ['hotelName','city','roomType','priceRange','accommodationType','stayDate','stayNights','bookingChannel','stayPurpose','travelCompanion'];
+  bindings.forEach(key => {
+    const el = document.getElementById(key);
+    if (!el) return;
+    const eventName = el.tagName === 'SELECT' ? 'change' : 'input';
+    el.addEventListener(eventName, e => { state.context[key] = e.target.value; });
+    if (eventName !== 'change') el.addEventListener('change', e => { state.context[key] = e.target.value; });
+  });
+  document.querySelectorAll('input[name="isMember"]').forEach(radio => {
+    radio.addEventListener('change', e => {
+      state.context.isMember = e.target.value === 'true';
+      if (!state.context.isMember) state.context.memberLevel = '';
+      renderContextStage();
+    });
+  });
+  const memberLevel = document.getElementById('memberLevel');
+  if (memberLevel) memberLevel.addEventListener('input', e => { state.context.memberLevel = e.target.value; });
+}
+
+function renderDimensionStage() {
+  const visibleDims = getVisibleDimensions();
+  const dim = visibleDims[currentStage - DIMENSION_STAGE_START];
+  const host = document.getElementById('pageHost');
+  // 记录当前维度为已访问
+  if (dim) visitedDims.add(dim.id);
+  if (!dim) {
+    currentStage = getRiskStage();
+    render(false);
+    return;
+  }
+  host.innerHTML = `
+    <section class="main">
+      <div class="head">
+        <div class="dimtag">一级维度</div>
+        <h2 class="dimtitle">${dim.name}</h2>
+        <div class="dimcore">${dim.core}</div>
+      </div>
+      <div class="items" id="items"></div>
+      <div class="foot v10-foot">
+        <div class="dimavg">当前维度均分 <strong id="dimAvg">${getDimAvg(dim).toFixed(1)}</strong></div>
+        <div class="actions">
+          <button class="btn secondary" type="button" onclick="goPrev()">← 上一步</button>
+          <button class="btn primary" type="button" onclick="goNext()">${currentStage===getDimensionStageEnd()?'进入风险与修正 →':'下一维度 →'}</button>
+        </div>
+      </div>
+    </section>
+  `;
+  const itemsWrap = document.getElementById('items');
+  const visibleItems = getVisibleItems(dim);
+  visibleItems.forEach(item => {
+    const currentValue = state[item.id].toFixed(1);
+    const currentInt = Math.round(state[item.id]);
+    const el = document.createElement('div');
+    el.className = 'item v10-item';
+    el.innerHTML = `
+      <div class="itembadge">二级指标</div>
+      <div class="itemtitle">${item.name}</div>
+      <div class="itemhint">${item.hint}</div>
+      <div class="score-zone">
+        <div class="score-current">
+          <strong id="pill_${item.id}">${currentValue}</strong>
+          <em>当前分值</em>
+        </div>
+        <div class="score-grid" data-item-id="${item.id}"
+             data-anchor-1="${item.low}"
+             data-anchor-3="${item.mid}"
+             data-anchor-5="${item.high}">
+          <div class="score-tick-row-inner" id="ticks_${item.id}">
+            <span class="score-tick is-anchor${currentInt===1?' is-active':''}" data-val="1">1</span>
+            <span class="score-tick" data-val="2">2</span>
+            <span class="score-tick is-anchor${currentInt===3?' is-active':''}" data-val="3">3</span>
+            <span class="score-tick" data-val="4">4</span>
+            <span class="score-tick is-anchor${currentInt===5?' is-active':''}" data-val="5">5</span>
+          </div>
+          <div class="score-slider-wrap">
+            <input class="v10-slider" type="range" id="slider_${item.id}" min="1" max="5" step="0.5" value="${state[item.id]}">
+          </div>
+          <div class="score-anchor-row" id="anchors_${item.id}">
+            <div class="score-active-label"></div>
+          </div>
+        </div>
+      </div>
+    `;
+    itemsWrap.appendChild(el);
+  });
+  visibleItems.forEach(item => {
+    let _sliderFrame = null;
+    document.getElementById(`slider_${item.id}`).addEventListener('input', e => {
+      const val = parseFloat(e.target.value);
+      const target = e.target;
+      if (_sliderFrame) cancelAnimationFrame(_sliderFrame);
+      _sliderFrame = requestAnimationFrame(() => {
+        state[item.id] = val;
+        document.getElementById(`pill_${item.id}`).textContent = val.toFixed(1);
+        document.getElementById('dimAvg').textContent = getDimAvg(dim).toFixed(1);
+        const grid = target.closest('.score-grid');
+        if (grid) {
+          grid.querySelectorAll('.score-tick').forEach(tick => {
+            tick.classList.toggle('is-active', parseFloat(tick.dataset.val) === Math.round(val));
+          });
+          updateActiveLabel(grid, target);
+        }
+        refreshSummary();
+        _sliderFrame = null;
+      });
+    });
+  });
+}
+
+function detailCount(parentId){
+  const opts = riskDetailMap[parentId] || [];
+  return opts.filter(([id]) => state[id]).length;
+}
+function clearRiskDetails(parentId){
+  (riskDetailMap[parentId] || []).forEach(([id]) => state[id] = false);
+}
+function toggleDetailPanel(parentId){
+  state.uiExpanded[parentId] = !state.uiExpanded[parentId];
+  if (currentStage === getRiskStage()) render(false);
+}
+function renderDetailSection(parentId){
+  const opts = riskDetailMap[parentId] || [];
+  if (!opts.length) return '';
+  const selectedCount = detailCount(parentId);
+  const expanded = !!state.uiExpanded[parentId];
+  const selectedTitles = opts.filter(([id]) => state[id]).map(([,title]) => title);
+  if (!expanded) {
+    if (!state[parentId] && !selectedCount) return '';
+    return `
+      <div class="subcheck-wrap compact">
+        <div class="subcheck-head compact-head">
+          <div>
+            <div class="subcheck-title">${selectedCount ? `已细化 · ${selectedCount}项` : '主项已勾选'}</div>
+            <div class="subcheck-desc">${selectedCount ? selectedTitles.slice(0,2).join('、') + (selectedCount > 2 ? ' 等' : '') : '当前仅记录主项；如需补充具体表现，可手动展开细项。'}</div>
+          </div>
+          <button class="mini-link" type="button" onclick="toggleDetailPanel('${parentId}')">展开细项</button>
+        </div>
+      </div>
+    `;
+  }
+  return `
+    <div class="subcheck-wrap">
+      <div class="subcheck-head">
+        <div>
+          <div class="subcheck-title">具体表现</div>
+          <div class="subcheck-desc">细项主要用于结果解释与文案输出，不额外重复扣分。展开与收起均由你自己控制。</div>
+        </div>
+        <button class="mini-link" type="button" onclick="toggleDetailPanel('${parentId}')">收起细项</button>
+      </div>
+      <div class="subcheck-grid">
+        ${opts.map(([id,title,desc]) => `
+          <label class="suboption">
+            <input type="checkbox" ${state[id] ? 'checked' : ''} onchange="toggleRiskDetail('${parentId}','${id}', this.checked)">
+            <div>
+              <strong>${title}</strong>
+              <span>${desc}</span>
+            </div>
+          </label>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function renderOptionList(options, groupName, type='checkbox') {
+  return options.map(([id,title,desc]) => {
+    const hasDetail = !!(riskDetailMap[id] && riskDetailMap[id].length);
+    const selectedCount = detailCount(id);
+    const canShowDetail = hasDetail && (state[id] || selectedCount || state.uiExpanded[id]);
+    return `
+      <div class="option-block">
+        <label class="option">
+          <input type="${type}" name="${groupName}" ${type==='checkbox' ? (state[id]?'checked':'') : (state[groupName]===title?'checked':'')} onchange="${type==='checkbox' ? `toggleState('${id}', this.checked)` : `setChoice('${groupName}', '${title}')`}">
+          <div>
+            <strong>${title}</strong>
+            <span>${desc}</span>
+          </div>
+        </label>
+        ${type==='checkbox' && hasDetail ? `
+          <div class="detail-entry-row">
+            <div class="detail-entry-note">${selectedCount ? `已细化 ${selectedCount} 项` : (state[id] ? '可继续细化具体表现' : '如需补充具体表现，可手动展开细项')}</div>
+            <button class="mini-link" type="button" onclick="toggleDetailPanel('${id}')">${state.uiExpanded[id] ? '收起细项' : '展开细项'}</button>
+          </div>
+          ${canShowDetail ? renderDetailSection(id) : ''}
+        ` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+function renderRiskStage() {
+  const host = document.getElementById('pageHost');
+  host.innerHTML = `
+    <section class="main risk-stage">
+      <div class="head">
+        <div class="dimtag">Risk Adjustment</div>
+        <h2 class="dimtitle">风险与修正</h2>
+        <div class="dimcore">以下风险项一旦成立，将直接影响整体评价结论，均分不再构成保护依据。</div>
+      </div>
+      <div class="risk-grid">
+        <section class="risk-card fatal">
+          <div class="card-kicker">Fatal</div>
+          <h3 class="group-title">致命风险</h3>
+          <p class="group-desc">触发任意一项，整体体验基本无法成立。</p>
+          <div class="check-list">${renderOptionList(fatalOptions,'fatal')}</div>
+          <div class="rule-box"><strong>规则：</strong>触发 1 项，结论上限为中性；触发 2 项及以上，直接进入不推荐。</div>
+        </section>
+        <section class="risk-card structural">
+          <div class="card-kicker">Structural</div>
+          <h3 class="group-title">结构性问题</h3>
+          <p class="group-desc">系统性拉低体验的问题，通常不属于偶发。</p>
+          <div class="check-list">${renderOptionList(structuralOptions,'structural')}</div>
+          <div class="rule-box"><strong>规则：</strong>每项 −0.3；累计 2 项及以上，额外 −0.5。</div>
+        </section>
+        <section class="risk-card gap">
+          <div class="card-kicker">Expectation Gap</div>
+          <h3 class="group-title">感知偏差</h3>
+          <p class="group-desc">不一定构成硬伤，但会显著影响满意度。</p>
+          <div class="check-list">${renderOptionList(expectationOptions,'gap')}</div>
+          <div class="rule-box"><strong>规则：</strong>不直接扣分，但影响最终文本的推荐力度与语气。</div>
+        </section>
+        <section class="risk-card minor">
+          <div class="card-kicker">Minor</div>
+          <h3 class="group-title">可接受瑕疵</h3>
+          <p class="group-desc">存在问题，但尚未伤及整体体验底线。</p>
+          <div class="check-list">${renderOptionList(minorOptions,'minor')}</div>
+          <div class="rule-box"><strong>规则：</strong>不参与评分计算，仅纳入结果文本作为补充说明。</div>
+        </section>
+      </div>
+      <section class="note-panel">
+        <div class="card-kicker">Risk Note</div>
+        <h3>补充说明</h3>
+        <p>留给无法被选项完整表达的细节——问题不严重但影响感受，或宣传未失真但存在刻意取巧。</p>
+        <textarea id="riskNoteInput" placeholder="如：卫生问题较轻微，但入住时的第一印象仍受到影响。">${escapeHtml(state.riskNote)}</textarea>
+      </section>
+      <div class="foot">
+        <div class="dimavg">当前风险状态 <strong>${countChecked(fatalOptions)} / ${fatalOptions.length}</strong></div>
+        <div class="actions">
+          <button class="btn secondary" type="button" onclick="goPrev()">← 返回体验判断</button>
+          <button class="btn primary" type="button" onclick="goNext()">进入价值判断 →</button>
+        </div>
+      </div>
+    </section>
+  `;
+  const riskNoteInput = document.getElementById('riskNoteInput');
+  if (riskNoteInput) {
+    riskNoteInput.addEventListener('input', e => setRiskNote(e.target.value));
+  }
+}
+
+
+function renderValueStage() {
+  const host = document.getElementById('pageHost');
+  const modeKey = getCurrentModeKey();
+  const valueItems = getVisibleValueItems();
+  const valueScore = getValueScore();
+  const valueLabel = getValueVerdictLabel(valueScore);
+  const premiumConclusion = getPremiumConclusion();
+  host.innerHTML = `
+    <section class="main">
+      <div class="head">
+        <div class="dimtag">Value</div>
+        <h2 class="dimtitle">价格与价值</h2>
+        <div class="dimcore">在维度体验评分之外，此阶段专项判断价格与体验的匹配程度。子项将随评价模式自动调整，请依据实际感受逐项作答。</div>
+      </div>
+      <div class="items" id="valueItems"></div>
+      <div class="section-grid">
+        <section class="choice-card premium-section" style="grid-column:1 / -1;">
+          <div class="card-kicker">Premium Conditions</div>
+          <h3 class="choice-title">溢价支撑条件</h3>
+          <p class="choice-desc">只有当价格更高时，这些条件才有资格解释"为什么贵"。没有支撑条件，不代表一定差，但很难说服人继续为溢价买单。</p>
+          <p style="font-family:var(--font-body);font-size:11px;color:rgba(92,82,72,.46);margin:-6px 0 16px;letter-spacing:0.01em;line-height:1.65;">以下条件不参与评分计算，仅用于解释溢价是否成立。</p>
+          <div class="check-list" style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
+            ${Object.entries(PREMIUM_CONDITIONS).map(([key,label])=>`
+              <label class="option premium-option">
+                <input type="checkbox" ${state[key] ? 'checked' : ''} onchange="togglePremiumCondition('${key}', this.checked)">
+                <div><strong>${label}</strong></div>
+              </label>
+            `).join('')}
+          </div>
+          <div class="premium-verdict"><span>当前判断：</span>${premiumConclusion}</div>
+        </section>
+      </div>
+      <div class="foot">
+        <div class="dimavg">当前价值判断 <strong>${valueLabel}</strong></div>
+        <div class="actions">
+          <button class="btn secondary" type="button" onclick="goPrev()">← 返回风险与修正</button>
+          <button class="btn primary" type="button" onclick="goNext()">生成最终结果 →</button>
+        </div>
+      </div>
+    </section>
+  `;
+
+  const itemsWrap = document.getElementById('valueItems');
+  valueItems.forEach(item => {
+    const exp = getValueExplanation(item.id);
+    const currentValue = (Number(state[item.id]) || 3).toFixed(1);
+    const currentInt = Math.round(Number(state[item.id]) || 3);
+    const el = document.createElement('div');
+    el.className = 'item v10-item';
+    el.innerHTML = `
+      <div class="scoreline" style="margin-top:0; margin-bottom:8px;">
+        <div>
+          <div class="itemtitle">${item.name}</div>
+          <div class="itemhint">权重 ${(item.normalizedWeight * 100).toFixed(0)}%</div>
+        </div>
+      </div>
+      <div class="itemhint" style="max-width:100%;">
+        <strong style="color:var(--ink); font-weight:500;">指标解释</strong><br>
+        ${exp.desc}<br>
+        打分提示：${exp.hint}<br>
+        ${exp.notIncluded ? `不纳入本项：${exp.notIncluded}` : ''}
+      </div>
+      <div class="score-zone">
+        <div class="score-current">
+          <strong id="pill_${item.id}">${currentValue}</strong>
+          <em>当前分值</em>
+        </div>
+        <div class="score-grid" data-item-id="${item.id}"
+             data-anchor-1="${item.anchors[0]}"
+             data-anchor-3="${item.anchors[1]}"
+             data-anchor-5="${item.anchors[2]}">
+          <div class="score-tick-row-inner" id="ticks_${item.id}">
+            <span class="score-tick is-anchor${currentInt===1?' is-active':''}" data-val="1">1</span>
+            <span class="score-tick" data-val="2">2</span>
+            <span class="score-tick is-anchor${currentInt===3?' is-active':''}" data-val="3">3</span>
+            <span class="score-tick" data-val="4">4</span>
+            <span class="score-tick is-anchor${currentInt===5?' is-active':''}" data-val="5">5</span>
+          </div>
+          <div class="score-slider-wrap">
+            <input class="v10-slider" type="range" id="slider_${item.id}" min="1" max="5" step="0.5" value="${state[item.id]}">
+          </div>
+          <div class="score-anchor-row" id="anchors_${item.id}">
+            <div class="score-active-label"></div>
+          </div>
+        </div>
+      </div>
+    `;
+    itemsWrap.appendChild(el);
+  });
+
+  valueItems.forEach(item => {
+    let _valueSliderFrame = null;
+    document.getElementById(`slider_${item.id}`).addEventListener('input', e => {
+      const val = parseFloat(e.target.value);
+      const target = e.target;
+      if (_valueSliderFrame) cancelAnimationFrame(_valueSliderFrame);
+      _valueSliderFrame = requestAnimationFrame(() => {
+        state[item.id] = val;
+        const pill = document.getElementById(`pill_${item.id}`);
+        if (pill) pill.textContent = val.toFixed(1);
+        const gridEl = target.closest('.score-grid');
+        if (gridEl) {
+          gridEl.querySelectorAll('.score-tick').forEach(tick => {
+            tick.classList.toggle('is-active', parseFloat(tick.dataset.val) === Math.round(val));
+          });
+          updateActiveLabel(gridEl, target);
+        }
+        const avg = getValueVerdictLabel(getValueScore());
+        const avgEl = document.querySelector('.foot .dimavg strong');
+        if (avgEl) avgEl.textContent = avg;
+        refreshSummary();
+        _valueSliderFrame = null;
+      });
+    });
+  });
+}
+
+function topDimensionNames(mode='strength') {
+  const sorted = getVisibleDimensions().map(dim => ({name:dim.name, avg:getDimAvg(dim)})).sort((a,b)=> mode==='strength' ? b.avg-a.avg : a.avg-b.avg);
+  return sorted.slice(0,3).map(x=>x.name);
+}
+
+function premiumSummary(){
+  const selected = getPremiumConditionKeys().map(key => PREMIUM_CONDITIONS[key]);
+  if (!selected.length) return '未形成明确溢价逻辑';
+  if (selected.length === 1) return `溢价主要来自${selected[0]}`;
+  if (selected.length === 2) return `溢价主要来自${selected[0]}与${selected[1]}`;
+  return `溢价主要来自${selected.slice(0,2).join('、')}，并叠加${selected[2]}支撑`;
+}
+function finalSummaryText(model){
+  if (model.level === '强推荐') return '整体体验与价格逻辑都成立，已经是值得专门选择的一类。';
+  if (model.level === '推荐') return '整体体验成立，优势明确，但仍保留少量短板。';
+  if (model.level === '中性') return '基础体验成立，但亮点不足，或被风险与价格判断拉回中性。';
+  return '关键问题仍在，或价格逻辑未成立，不建议优先选择。';
+}
+function buildStrengthsWeaknesses(model){
+  const strengths = [];
+  const weaknesses = [];
+  const strongDims = topDimensionNames('strength');
+  const weakDims = topDimensionNames('weakness');
+  const dimNameMap = {
+    '区位与到达':   ['区位与到达条件具备明确优势',            '区位或到达条件对整体体验存在一定拖累'],
+    '空间与设计':   ['空间与设计表达相对完整',                '空间细节或功能布局仍有欠缺'],
+    '服务体系':     ['服务体系整体较稳定',                    '服务系统尚未形成稳定优势'],
+    '餐饮产品':     ['餐饮系统基础能力尚可',                  '餐饮表现仍是明显短板'],
+    '秩序与客群适配':['客群适配度与整体秩序表现较好',          '客群适配或秩序管理尚有提升空间'],
+    '设施与运维':   ['硬件设施状态稳定，运维水准较高',         '设施状态或运维细节存在掉链子风险'],
+    '商务支持能力': ['商务支持配套完整，差旅效率有明确托底',   '商务配套仍有欠缺，无法有效降低差旅摩擦']
+  };
+  strongDims.forEach(name => {
+    if (dimNameMap[name]) strengths.push(dimNameMap[name][0]);
+  });
+  weakDims.forEach(name => {
+    if (dimNameMap[name]) weaknesses.push(dimNameMap[name][1]);
+  });
+
+  if (model.structuralCount >= 1) weaknesses.unshift('存在结构性问题，已对整体体验形成系统性拖累');
+  if (model.fatalCount >= 1) weaknesses.unshift('存在关键风险项，均分已不再具备完全解释力');
+
+  return {
+    strengths:[...new Set(strengths)].slice(0,3),
+    weaknesses:[...new Set(weaknesses)].slice(0,3)
+  };
+}
+function buildRiskList(){
+  const list = [];
+  [...fatalOptions, ...structuralOptions, ...expectationOptions, ...minorOptions].forEach(([id,title])=>{
+    if (state[id]) {
+      const detailTitles = (riskDetailMap[id] || []).filter(([detailId]) => state[detailId]).map(([,detailTitle]) => detailTitle);
+      list.push(detailTitles.length ? `${title}（${detailTitles.slice(0,2).join('、')}${detailTitles.length > 2 ? ' 等' : ''}）` : title);
+    }
+  });
+  return list;
+}
+function buildFitLists(model){
+  const fit = [];
+  const unfit = [];
+  const dimLocation = schema.find(d => d.id === 'location');
+  const dimDesign   = schema.find(d => d.id === 'design');
+  const dimService  = schema.find(d => d.id === 'service');
+  const dimFb       = schema.find(d => d.id === 'fb');
+  const dimVibe     = schema.find(d => d.id === 'vibe');
+  const dimBusiness = schema.find(d => d.id === 'business_support');
+  if (dimLocation && getDimAvg(dimLocation) >= 3.5) fit.push('更看重位置便利性与到达体验的人');
+  if (dimDesign   && getDimAvg(dimDesign)   >= 3.5) fit.push('在意设计表达与空间氛围的人');
+  if (dimService  && getDimAvg(dimService)  >= 3.5) fit.push('重视服务稳定性的人');
+  if (model.valueScore >= 4.0) fit.push('接受一定溢价、但希望体验成立的人');
+  if (getCurrentModeKey() === 'business' && dimBusiness && getDimAvg(dimBusiness) >= 3.5) fit.push('希望差旅效率被真正托住的人');
+
+  if (dimFb   && getDimAvg(dimFb)   < 3) unfit.push('对餐饮要求较高的人');
+  if (model.valueScore < 2.8 || model.premiumConditionCount === 0) unfit.push('预算敏感且强调性价比的人');
+  if (state.fatal_noise || state.fatal_hygiene || state.struct_layout) unfit.push('对硬伤容忍度低的人');
+  if (dimVibe && getDimAvg(dimVibe) < 3) unfit.push('非常在意人群氛围与秩序管理的人');
+
+  return {
+    fit:[...new Set(fit)].slice(0,3),
+    unfit:[...new Set(unfit)].slice(0,3)
+  };
+}
+
+function escapeHtml(value=''){
+  return String(value)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+function setRiskNote(value){
+  state.riskNote = value;
+}
+function setSubjectiveNote(key, value){
+  state[key] = value;
+  updateFinalTextarea();
+}
+
+let isFinalTextManuallyEdited = false;
+
+function setOutputMode(value){
+  if (isFinalTextManuallyEdited) {
+    if (!confirm('切换模式会覆盖当前手动编辑的内容，确定继续？')) return;
+    isFinalTextManuallyEdited = false;
+  }
+  state.outputMode = value;
+  refreshWritingControls();
+  updateFinalTextarea();
+}
+function setWritingStyle(value){
+  if (isFinalTextManuallyEdited) {
+    if (!confirm('切换风格会覆盖当前手动编辑的内容，确定继续？')) return;
+    isFinalTextManuallyEdited = false;
+  }
+  state.writingStyle = value;
+  refreshWritingControls();
+  updateFinalTextarea();
+}
+function refreshWritingControls(){
+  document.querySelectorAll('[data-mode]').forEach(btn => btn.classList.toggle('active', btn.dataset.mode === state.outputMode));
+  document.querySelectorAll('[data-style]').forEach(btn => btn.classList.toggle('active', btn.dataset.style === state.writingStyle));
+  const modeEl = document.getElementById('currentOutputMode');
+  const styleEl = document.getElementById('currentWritingStyle');
+  if (modeEl) modeEl.textContent = state.outputMode;
+  if (styleEl) styleEl.textContent = state.writingStyle;
+}
+function buildTextByModeStyle(model, strengths, weaknesses, risks, fitLists){
+  const level = model.level;
+  const value = model.valueLabel;
+  const s1 = strengths[0] || '基础体验大体成立';
+  const s2 = strengths[1] || '';
+  const s3 = strengths[2] || '';
+  const w1 = weaknesses[0] || '缺乏决定性亮点';
+  const w2 = weaknesses[1] || '';
+  const r1 = risks[0] || '';
+  const r2 = risks[1] || '';
+  const fit1 = fitLists.fit[0] || '基础诉求与酒店定位相对匹配的人';
+  const fit2 = fitLists.fit[1] || '';
+  const unfit1 = fitLists.unfit[0] || '对稳定性和性价比要求很高的人';
+  const unfit2 = fitLists.unfit[1] || '';
+  const premium = premiumSummary();
+  const hotelName = (state.context && state.context.hotelName) ? state.context.hotelName : '这家酒店';
+  const city = (state.context && state.context.city) ? state.context.city : '';
+  const priceRange = (state.context && state.context.priceRange) ? state.context.priceRange : '';
+  const style = state.writingStyle;
+  const mode = state.outputMode;
+
+  // ── 风格口吻配置 ───────────────────────────────────────────────
+  const tone = {
+    '克制专业': {
+      open: `${hotelName}的综合判断为${level}。`,
+      valueOpen: `价格与体验的匹配关系，目前落在"${value}"区间。`,
+      riskOpen: (r) => `需要指出的是，${r}，这一点在整体评估中不可忽视。`,
+      fitOpen: (f, u) => `更适合${f}${u ? `；${u}在选择前宜仔细权衡` : ''}。`
+    },
+    '资深住客': {
+      open: `住过不少同类产品之后，${hotelName}给我的判断是${level}。`,
+      valueOpen: `回到最核心的问题——这个价格值不值，我的答案是"${value}"。`,
+      riskOpen: (r) => `有一点不能绕过：${r}，这不是小事。`,
+      fitOpen: (f, u) => `如果你是${f}，这里大概率不会让你失望。${u ? `但如果你属于${u}，还是建议再考虑一下。` : ''}`
+    },
+    '中性冷静': {
+      open: `评价结论：${level}。`,
+      valueOpen: `价值判断：${value}。`,
+      riskOpen: (r) => `风险提示：${r}。`,
+      fitOpen: (f, u) => `适合人群：${f}${u ? `；不太适合：${u}` : ''}。`
+    },
+    '略带个人感受': {
+      open: `退房那天，在电梯里想了一下，${hotelName}大概算${level}。`,
+      valueOpen: `花这个价格，${value}是我真实的感受。`,
+      riskOpen: (r) => `有一件事我一直没忘：${r}。不是特别严重，但就是会想起来。`,
+      fitOpen: (f, u) => `如果你是${f}，住这里不会让你后悔。${u ? `但要是你很在意${u.replace('的人','')}这件事，可能要想清楚。` : ''}`
+    },
+    '适合公开发布': {
+      open: `综合多个维度的实地体验，${hotelName}最终评级为${level}${city ? `（${city}）` : ''}。`,
+      valueOpen: `从价格合理性角度评估，本次入住属于"${value}"${priceRange ? `（参考价格：${priceRange}）` : ''}。`,
+      riskOpen: (r) => `【注意】${r}，建议潜在入住者提前了解。`,
+      fitOpen: (f, u) => `【适合人群】${f}${fit2 ? `、${fit2}` : ''}。${u ? `【不建议人群】${u}${unfit2 ? `、${unfit2}` : ''}。` : ''}`
+    }
+  }[style] || {
+    open: `${hotelName}的综合判断为${level}。`,
+    valueOpen: `价格与体验的匹配关系，目前落在"${value}"区间。`,
+    riskOpen: (r) => `需要指出的是，${r}。`,
+    fitOpen: (f, u) => `更适合${f}${u ? `；${u}在选择前宜仔细权衡` : ''}。`
+  };
+
+  // ── 极简一句话版：编辑标注，没有废字 ────────────────────────────
+  // 目标：一句话装下判断 + 核心理由 + 核心短板 + 价格结论
+  if (mode === '极简一句话版') {
+    const coreReason = s1 ? `以${s1}为主要支撑` : '';
+    const coreWeak = w1 ? `，${w1}是短板` : '';
+    const coreRisk = r1 ? `，需注意${r1}` : '';
+    const coreValue = `，价格层面${value}`;
+    return `${tone.open}${coreReason}${coreWeak}${coreRisk}${coreValue}。`.replace('。。','。');
+  }
+
+  // ── 朋友圈版：有审美的朋友，分享体验，不是评分系统 ─────────────
+  // 目标：像真人写出来的，不是模板生成的，有细节有留白
+  if (mode === '朋友圈版') {
+    const memoPart = s1;
+    const regretPart = w1;
+    const riskPart = r1 ? `
+
+顺便说一句，${r1}——这件事我觉得还是应该提前知道。` : '';
+    const valuePart = value === '明显值得' || value === '略有惊喜'
+      ? `住完觉得钱花得值，${premium ? premium + '，' : ''}这是主要原因。`
+      : value === '明显不值' || value === '略微不值'
+        ? `但说实话，这个价格有点难说服我下次还选它。`
+        : `价格方面，我觉得大体算是${value}，没有惊喜，也不算踩坑。`;
+    return `${tone.open}
+
+${memoPart}，是让我觉得住这里没白来的地方。${regretPart ? `但${regretPart}，住完之后还是有点如鲠在喉。` : ''}${riskPart}
+
+${valuePart}${fit1 ? `
+
+更适合${fit1}${fit2 ? `，或者${fit2}` : ''}来住。${unfit1 ? `对${unfit1}来说，可能会有些落差。` : ''}` : ''}`;
+  }
+
+  // ── 小红书版：有观点的种草/避雷，去掉符号堆砌，有判断感 ─────────
+  // 目标：不是清单，是有立场的一段话，让人读完知道该不该去
+  if (mode === '小红书版') {
+    const worthIt = value === '明显值得' || value === '略有惊喜';
+    const notWorth = value === '明显不值' || value === '略微不值';
+    const pros = [s1, s2].filter(Boolean).join('和');
+    const cons = [w1, w2].filter(Boolean).join('、');
+    const riskLine = r1 ? `还有一点要特别说明：${r1}${r2 ? `，以及${r2}` : ''}，这不是小概率事件。` : '';
+    const valueVerdict = worthIt
+      ? `价格这件事，我觉得是成立的。`
+      : notWorth
+        ? `价格方面，说实话有点难说服我。`
+        : `价格和体验，大体算是打平，不亏也没惊喜。`;
+    return `${tone.open}
+
+先说最重要的：${pros ? `${pros}是它真正拿得出手的地方` : '整体体验基本成立'}。${cons ? `但${cons}，这个问题实际住下来感受比想象中明显。` : ''}${riskLine ? `
+
+${riskLine}` : ''}
+
+${valueVerdict}${premium ? `背后的支撑主要是${premium}。` : ''}
+
+${fit1 ? `适合${fit1}${fit2 ? `或${fit2}` : ''}去住。${unfit1 ? `不太适合${unfit1}。` : ''}` : ''}`;
+  }
+
+  // ── 平台短评版：高效消费者，直给结论，不解释推理 ────────────────
+  // 目标：信息密度高，读一遍就知道要不要订，没有铺垫
+  if (mode === '平台短评版') {
+    const prosStr = [s1, s2].filter(Boolean).join('、');
+    const consStr = [w1, w2].filter(Boolean).join('、');
+    const riskStr = r1 ? `${r1}${r2 ? `、${r2}` : ''}需提前了解。` : '';
+    const valueStr = `价格${value}${premium ? `，${premium}` : ''}。`;
+    const fitStr = fit1 ? `推荐${fit1}${fit2 ? `、${fit2}` : ''}；${unfit1 ? `不建议${unfit1}` : ''}。` : '';
+    return `${tone.open}亮点：${prosStr || '基础体验成立'}。短板：${consStr || '暂无突出问题'}。${riskStr}${valueStr}${fitStr}`;
+  }
+
+  // ── 专业评价版（默认）：分析师视角，论据驱动，逻辑链完整 ─────────
+  // 目标：每一段有独立论点，段间有逻辑递进，不是清单式堆叠
+  const hasStrengths = s1;
+  const hasWeakness = w1;
+  const hasRisk = r1;
+  const minorCount = model.minorCount || 0;
+  const expectationCount = model.expectationCount || 0;
+
+  // 核心成立理由段
+  const foundationBlock = s2
+    ? `${s1}，以及${s2}，共同构成了这次判断能够成立的主要依据${s3 ? `；${s3}在细节层面亦有加分` : ''}。这两个方向的表现，足以支撑当前等级的基础可信度。`
+    : `${s1}，是本次判断得以成立的核心支撑。单凭这一点，它在同类产品中已经具备一定辨识度。`;
+
+  // 短板段：minorCount >= 1 时末尾补充细节瑕疵说明
+  const minorSuffix = minorCount >= 1
+    ? `此外存在${minorCount >= 3 ? '较多' : '若干'}可接受的细节瑕疵，不影响整体判断，但值得提前知悉。`
+    : '';
+  const weakBlock = hasWeakness
+    ? `但${w1}${w2 ? `以及${w2}` : ''}，是评价中无法被均分掩盖的真实短板。这类问题的特点是不会因为其他维度表现良好而自动消解——它会在特定时刻以非常具体的方式影响入住体验。${minorSuffix ? ` ${minorSuffix}` : ''}`
+    : minorSuffix || '';
+
+  // 感知偏差段：expectationCount >= 1 时说明预期落差
+  const expectationBlock = expectationCount >= 1
+    ? `需要额外指出的是，${expectationCount >= 2 ? '多处' : ''}宣传与实际体验之间存在一定落差，这类预期偏差不直接体现在维度分数中，但会影响入住后的整体满意度判断。`
+    : '';
+
+  // 风险段
+  const riskBlock = hasRisk
+    ? `在风险层面，${r1}${r2 ? `以及${r2}` : ''}值得单独说明。不是因为它们一定会发生，而是一旦触发，这类问题会直接影响整体体验的底线判断，而不只是局部扣分。`
+    : '';
+
+  // 价值段
+  const valueBlock = `${tone.valueOpen}${premium ? `${premium}，构成了当前价格最主要的解释依据。` : ''}这一判断独立于体验维度本身，直接回应的是"在同价位里，这是不是值得优先选择"的问题。`;
+
+  // 适配段
+  const fitBlock = tone.fitOpen(fit1, unfit1);
+
+  return `${tone.open}
+
+${foundationBlock}${weakBlock ? `
+
+${weakBlock}` : ''}${expectationBlock ? `
+
+${expectationBlock}` : ''}${riskBlock ? `
+
+${riskBlock}` : ''}
+
+${valueBlock}
+
+${fitBlock}`;
+}
+
+function buildMergedFinalText(baseText){
+  const extra = [];
+  if (state.riskNote && state.riskNote.trim()) extra.push(`补充说明：${state.riskNote.trim()}`);
+  if (state.noteMemorable && state.noteMemorable.trim()) extra.push(`我印象最深的：${state.noteMemorable.trim()}`);
+  if (state.noteDissatisfied && state.noteDissatisfied.trim()) extra.push(`我最不满意的：${state.noteDissatisfied.trim()}`);
+  if (state.noteOneLine && state.noteOneLine.trim()) extra.push(`一句话感受：${state.noteOneLine.trim()}`);
+  if (state.noteRevisit && state.noteRevisit.trim()) extra.push(`我会不会再来：${state.noteRevisit.trim()}`);
+  if (state.noteOther && state.noteOther.trim()) extra.push(`其他补充：${state.noteOther.trim()}`);
+  return extra.length ? `${baseText}\n\n${extra.join('\n')}` : baseText;
+}
+function updateFinalTextarea(){
+  const finalTextEl = document.getElementById('finalText');
+  const mapping = {
+    noteMemorable: 'subjectiveMemorable',
+    noteDissatisfied: 'subjectiveDissatisfied',
+    noteOneLine: 'subjectiveOneLine',
+    noteRevisit: 'subjectiveRevisit',
+    noteOther: 'subjectiveOther'
+  };
+  Object.entries(mapping).forEach(([key, id]) => {
+    const el = document.getElementById(id);
+    if (el) state[key] = el.value;
+  });
+  if (finalTextEl) {
+    const model = JSON.parse(finalTextEl.dataset.model || '{}');
+    const strengths = JSON.parse(finalTextEl.dataset.strengths || '[]');
+    const weaknesses = JSON.parse(finalTextEl.dataset.weaknesses || '[]');
+    const risks = JSON.parse(finalTextEl.dataset.risks || '[]');
+    const fitLists = JSON.parse(finalTextEl.dataset.fit || '{"fit":[],"unfit":[]}');
+    const baseText = buildTextByModeStyle(model, strengths, weaknesses, risks, fitLists);
+    finalTextEl.value = buildMergedFinalText(baseText);
+  }
+  refreshWritingControls();
+}
+
+function buildFinalText(model, strengths, weaknesses, risks, fitLists){
+  return buildTextByModeStyle(model, strengths, weaknesses, risks, fitLists);
+}
+
+function renderResultStage(){
+  const host = document.getElementById('pageHost');
+  const model = getFinalModel();
+  const points = Math.round((model.adjustedScore / 5) * 100);
+  const data = buildStrengthsWeaknesses(model);
+  const risks = buildRiskList();
+  const fitLists = buildFitLists(model);
+  const baseFinalText = buildFinalText(model, data.strengths, data.weaknesses, risks, fitLists);
+  const finalText = buildMergedFinalText(baseFinalText);
+  host.innerHTML = `
+    <section class="result-layout">
+      <section class="result-main v10-result">
+        <div class="card-kicker">判断完成</div>
+        <div class="result-scoreline">
+          <div class="result-points">${points}</div>
+          <div class="result-denom">综合得分</div>
+        </div>
+        <div style="margin-bottom:28px"><span class="verdict ${model.level==='不推荐'?'low':model.level==='中性'?'mid':'high'}">${model.level} · ${model.valueLabel}</span></div>
+        <p class="big-summary">${finalSummaryText(model)}</p>
+      </section>
+      <section class="result-main v10-result result-secondary-block" style="padding-top:28px; padding-bottom:32px;">
+        <div class="result-secondary-cols" style="display:grid; grid-template-columns:1fr 1fr; gap:0;">
+          <div style="padding-right:48px; border-right:0.5px solid rgba(26,22,18,.07);">
+            <div class="result-trio-label" style="margin-bottom:14px;">维度拆解</div>
+            ${getVisibleDimensions().map(dim => {
+              const avg = getDimAvg(dim);
+              const scoreColor = avg >= 4.0
+                ? 'color:rgba(140,122,91,.95);'
+                : avg < 2.5
+                  ? 'color:rgba(176,64,64,.75);'
+                  : '';
+              return `
+              <div class="metric-line" style="margin-top:0; padding:8px 0; border-bottom:0.5px solid rgba(26,22,18,.05);">
+                <span>${dim.name}</span><strong style="${scoreColor}">${avg.toFixed(1)}</strong>
+              </div>`;
+            }).join('')}
+          </div>
+          <div style="padding-left:48px; display:flex; flex-direction:column; justify-content:flex-start; padding-top:30px; gap:20px;">
+            <div>
+              <div class="result-trio-label" style="margin-bottom:6px;">基础表现分</div>
+              <div class="result-trio-value">${model.baseScore.toFixed(2)}</div>
+            </div>
+            <div>
+              <div class="result-trio-label" style="margin-bottom:6px;">价值匹配分</div>
+              <div class="result-trio-value">${model.valueScore.toFixed(2)}</div>
+            </div>
+            <div>
+              <div class="result-trio-label" style="margin-bottom:6px;">风险状态</div>
+              <div class="result-trio-value result-trio-risk">${model.fatalCount >= 2 ? '高风险' : model.fatalCount === 1 ? '需注意' : '无风险'}</div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <div class="result-grid">
+        <section class="result-card">
+          <div class="card-kicker">优势所在</div>
+          <h3>优势项</h3>
+          <ul>${data.strengths.map(x=>`<li>${x}</li>`).join('')}</ul>
+        </section>
+        <section class="result-card">
+          <div class="card-kicker">主要短板</div>
+          <h3>短板项</h3>
+          <ul>${data.weaknesses.map(x=>`<li>${x}</li>`).join('')}</ul>
+        </section>
+      </div>
+      ${risks.length ? `
+      <section class="result-wide">
+        <div class="card-kicker">风险提示</div>
+        <h3>风险提示</h3>
+        <ul>${risks.map(x=>`<li>${x}</li>`).join('')}</ul>
+      </section>` : ''}
+      <div class="result-grid">
+        <section class="result-card">
+          <div class="card-kicker">价值判断</div>
+          <h3>价值判断</h3>
+          <div class="metric-line"><span>价格结论</span><strong style="font-family:var(--font-heading);font-size:17px;letter-spacing:-0.01em;">${model.valueLabel}</strong></div>
+          <div class="metric-line"><span>价值分</span><strong>${model.valueScore.toFixed(1)}</strong></div>
+          <div class="metric-line"><span>溢价解释</span><span style="font-family:var(--font-heading);font-size:15px;letter-spacing:-0.01em;color:var(--ink);">${premiumSummary()}</span></div>
+        </section>
+        <section class="result-card">
+          <div class="card-kicker">模型快照</div>
+          <h3>模型快照</h3>
+          <div class="metric-line"><span>基础均分</span><strong>${model.baseScore.toFixed(1)}</strong></div>
+          <div class="metric-line"><span>修正后分值</span><strong>${model.adjustedScore.toFixed(1)}</strong></div>
+          <div class="metric-line"><span>致命风险 / 结构性问题</span><strong>${model.fatalCount} / ${model.structuralCount}</strong></div>
+          <div class="metric-line"><span>溢价支撑项</span><strong>${model.premiumConditionCount}</strong></div>
+        </section>
+      </div>
+      <div class="result-grid">
+        <section class="result-card">
+          <div class="card-kicker">更适合谁</div>
+          <h3>更适合谁</h3>
+          <ul>${(fitLists.fit.length ? fitLists.fit : ['基础诉求与酒店定位较匹配的人']).map(x=>`<li>${x}</li>`).join('')}</ul>
+        </section>
+        <section class="result-card">
+          <div class="card-kicker">不太适合谁</div>
+          <h3>不太适合谁</h3>
+          <ul>${(fitLists.unfit.length ? fitLists.unfit : ['对单点短板容忍度很低的人']).map(x=>`<li>${x}</li>`).join('')}</ul>
+        </section>
+      </div>
+      <section class="result-writing-box">
+        <div class="card-kicker">文本设置</div>
+        <h3 class="title" style="font-size:18px; margin-bottom:8px;">文本输出设置</h3>
+        <p class="result-panel-desc">选择输出模式与文案风格。切换后，下方生成内容实时同步更新。</p>
+        <div class="result-writing-grid">
+          <div>
+            <label for="outputModeSelect">文本输出模式</label>
+            <select id="outputModeSelect" onchange="setOutputMode(this.value)">
+              ${['专业评价版','平台短评版','极简一句话版','朋友圈版','小红书版'].map(mode => `<option value="${mode}" ${state.outputMode===mode?'selected':''}>${mode}</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <label for="writingStyleSelect">文案风格</label>
+            <select id="writingStyleSelect" onchange="setWritingStyle(this.value)">
+              ${['克制专业','资深住客','中性冷静','略带个人感受','适合公开发布'].map(style => `<option value="${style}" ${state.writingStyle===style?'selected':''}>${style}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+      </section>
+      <section class="result-subjective-box">
+        <div class="card-kicker">个人补充</div>
+        <h3 class="title" style="font-size:18px; margin-bottom:8px;">个性化补充</h3>
+        <p class="result-panel-desc">补充维度打分之外的个人感受。这部分不参与评分计算，但会融入最终生成的文本。</p>
+        <div class="result-subjective-grid">
+          <div>
+            <label for="subjectiveMemorable">我印象最深的</label>
+            <textarea id="subjectiveMemorable" placeholder="例如景观、服务细节、空间气质、早餐等" oninput="setSubjectiveNote('noteMemorable', this.value)">${escapeHtml(state.noteMemorable || '')}</textarea>
+          </div>
+          <div>
+            <label for="subjectiveDissatisfied">我最不满意的</label>
+            <textarea id="subjectiveDissatisfied" placeholder="例如设计缺陷、体验落差、价格不值等" oninput="setSubjectiveNote('noteDissatisfied', this.value)">${escapeHtml(state.noteDissatisfied || '')}</textarea>
+          </div>
+          <div>
+            <label for="subjectiveOneLine">一句话感受</label>
+            <textarea id="subjectiveOneLine" placeholder="例如它更偏向什么气质，住完后的真实体感" oninput="setSubjectiveNote('noteOneLine', this.value)">${escapeHtml(state.noteOneLine || '')}</textarea>
+          </div>
+          <div>
+            <label for="subjectiveRevisit">我会不会再来</label>
+            <textarea id="subjectiveRevisit" placeholder="例如是否会二刷、什么条件下会再住" oninput="setSubjectiveNote('noteRevisit', this.value)">${escapeHtml(state.noteRevisit || '')}</textarea>
+          </div>
+          <div class="result-field-wide">
+            <label for="subjectiveOther">其他补充</label>
+            <textarea id="subjectiveOther" placeholder="其他不适合放入结构化判断里的内容" oninput="setSubjectiveNote('noteOther', this.value)">${escapeHtml(state.noteOther || '')}</textarea>
+          </div>
+        </div>
+      </section>
+      <section class="result-archive-box">
+        <div class="card-kicker" style="margin-bottom:10px;">最终归档</div>
+        <h3 class="title" style="font-size:18px; margin-bottom:8px;">最终生成</h3>
+        <p class="result-panel-desc">完成上方所有判断后，在此生成最终结果文本，可直接复制使用。</p>
+        <textarea id="finalText" placeholder="补充你的最终判断或归档备注。" data-model='${escapeHtml(JSON.stringify(model))}' data-strengths='${escapeHtml(JSON.stringify(data.strengths))}' data-weaknesses='${escapeHtml(JSON.stringify(data.weaknesses))}' data-risks='${escapeHtml(JSON.stringify(risks))}' data-fit='${escapeHtml(JSON.stringify(fitLists))}'>${finalText}</textarea>
+        <div class="result-bottom-row">
+          <div style="display:flex;gap:10px;">
+            <button class="btn secondary" type="button" onclick="copyText()">复制文本</button>
+            <button class="btn secondary" type="button" onclick="document.getElementById('finalText').value=''">清空</button>
+          </div>
+          <div style="display:flex;gap:10px;">
+            <button class="btn secondary" type="button" onclick="goPrev()">返回修改</button>
+            <button class="btn primary" type="button" onclick="downloadResult()">导出结果</button>
+          </div>
+        </div>
+      </section>
+      <div class="result-compare-subtle">
+        <div class="result-compare-subtle-head">
+          <div>
+            <span class="card-kicker" style="display:inline;margin-bottom:0;">对比记录</span>
+            <span style="font-family:var(--font-body);font-size:var(--ts-11);color:rgba(92,82,72,.36);margin-left:8px;letter-spacing:0.01em;">数据仅保存在当前浏览器</span>
+          </div>
+          <div style="display:flex;gap:16px;align-items:center;">
+            <button id="saveCompareBtn" class="compare-text-btn" type="button" onclick="saveCurrentToCompare()">保存当前结果</button>
+            <button class="compare-text-btn" type="button" style="color:rgba(92,82,72,.36);" onclick="clearAllCompareRecords()">清空</button>
+          </div>
+        </div>
+        <div id="compareBlock"></div>
+      </div>
+    </section>
+  `;
+  refreshWritingControls();
+  // 绑定手动编辑标志：用户改过文本后，切换模式/风格前需确认
+  isFinalTextManuallyEdited = false;
+  const _finalTextEl = document.getElementById('finalText');
+  if (_finalTextEl) {
+    _finalTextEl.addEventListener('input', () => { isFinalTextManuallyEdited = true; });
+  }
+  // 渲染对比记录
+  renderCompareBlock();
+}
+
+function toggleState(key, value){
+  state[key] = value;
+  if (!value) {
+    // 清除所有子项 state（彻底清理，不依赖 clearRiskDetails）
+    if (riskDetailMap[key]) {
+      riskDetailMap[key].forEach(([id]) => { state[id] = false; });
+    }
+    clearRiskDetails(key);
+    state.uiExpanded[key] = false;
+  }
+  refreshSummary();
+  if (currentStage === getRiskStage()) render(false);
+}
+function toggleRiskDetail(parentId, key, value){
+  state[key] = value;
+  if (value) {
+    state[parentId] = true;
+  } else if (!(riskDetailMap[parentId] || []).some(([id]) => state[id])) {
+    state[parentId] = false;
+  }
+  refreshSummary();
+  if (currentStage === getRiskStage()) render(false);
+}
+
+function togglePremiumCondition(key, checked){
+  state[key] = checked;
+  refreshSummary();
+  if (currentStage === getValueStage()) renderValueStage();
+}
+
+function setValueChoice(value){ state.valueChoice = value; refreshSummary(); }
+function setRevisitChoice(value){ state.revisitChoice = value; refreshSummary(); }
+function setChoice(group, value){ state[group] = value; refreshSummary(); }
+
+function goPrev(){
+  if (currentStage > 0) {
+    currentStage -= 1;
+    renderWithTransition();
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+}
+function goNext(){
+  if (currentStage === 2 && (!state.context.hotelName || !state.context.city)) {
+    alert('请至少填写酒店名称和城市。');
+    return;
+  }
+  if (currentStage < getResultStage()) {
+    currentStage += 1;
+    renderWithTransition();
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+}
+function copyText(){
+  const text = document.getElementById('finalText');
+  if (!text) return;
+  text.select();
+  text.setSelectionRange(0, 99999);
+  try {
+    document.execCommand('copy');
+  } catch (e) {}
+}
+function downloadResult(){
+  const model = getFinalModel();
+  const points = Math.round((model.adjustedScore / 5) * 100);
+  const content = document.getElementById('finalText') ? document.getElementById('finalText').value : '';
+  const blob = new Blob([`StayLens Result
+
+结论：${model.level} / ${model.valueLabel} / ${model.valueScore.toFixed(1)}分
+分值：${points} / 100
+基础均分：${model.baseScore.toFixed(1)}
+修正后分值：${model.adjustedScore.toFixed(1)}
+
+${content}`], {type:'text/plain;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `StayLens_Result_${new Date().toISOString().slice(0,10)}.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+/* ─── 对比记录：localStorage 存取 ─────────────────────────────── */
+const COMPARE_KEY = 'staylens_compare_records';
+
+function loadCompareRecords() {
+  try {
+    return JSON.parse(localStorage.getItem(COMPARE_KEY) || '[]');
+  } catch(e) { return []; }
+}
+
+function saveCurrentToCompare() {
+  const model = getFinalModel();
+  const points = Math.round((model.adjustedScore / 5) * 100);
+  const hotelName = (state.context && state.context.hotelName) ? state.context.hotelName : '未命名酒店';
+  const city = (state.context && state.context.city) ? state.context.city : '';
+  const priceRange = (state.context && state.context.priceRange) ? state.context.priceRange : '';
+  const record = {
+    id: Date.now(),
+    savedAt: new Date().toLocaleDateString('zh-CN'),
+    hotelName,
+    city,
+    priceRange,
+    points,
+    level: model.level,
+    valueLabel: model.valueLabel,
+    baseScore: model.baseScore.toFixed(2),
+    adjustedScore: model.adjustedScore.toFixed(2),
+    valueScore: model.valueScore.toFixed(2),
+    fatalCount: model.fatalCount,
+    dims: getVisibleDimensions().map(dim => ({
+      name: dim.name,
+      score: getDimAvg(dim).toFixed(1)
+    }))
+  };
+  const records = loadCompareRecords();
+  // 同名酒店覆盖旧记录
+  const existingIdx = records.findIndex(r => r.hotelName === hotelName && r.city === city);
+  if (existingIdx >= 0) {
+    if (!confirm(`已有「${hotelName}」的评价记录，是否覆盖？`)) return;
+    records.splice(existingIdx, 1);
+  }
+  records.unshift(record);
+  // 最多保留 10 条
+  if (records.length > 10) records.splice(10);
+  try {
+    localStorage.setItem(COMPARE_KEY, JSON.stringify(records));
+    renderCompareBlock();
+    // 按钮反馈
+    const btn = document.getElementById('saveCompareBtn');
+    if (btn) { btn.textContent = '已保存 ✓'; setTimeout(() => { btn.textContent = '保存当前结果'; }, 1800); }
+  } catch(e) { alert('保存失败，浏览器存储可能已满。'); }
+}
+
+function deleteCompareRecord(id) {
+  const records = loadCompareRecords().filter(r => r.id !== id);
+  localStorage.setItem(COMPARE_KEY, JSON.stringify(records));
+  renderCompareBlock();
+}
+
+function clearAllCompareRecords() {
+  if (!confirm('确定清空所有对比记录？')) return;
+  localStorage.removeItem(COMPARE_KEY);
+  renderCompareBlock();
+}
+
+function renderCompareBlock() {
+  const wrap = document.getElementById('compareBlock');
+  if (!wrap) return;
+  const records = loadCompareRecords();
+  if (!records.length) {
+    wrap.innerHTML = `<p style="font-family:var(--font-body);font-size:var(--ts-13);color:rgba(92,82,72,.42);margin:0;font-style:italic;">暂无对比记录。完成评价后点击「保存当前结果」即可存入。</p>`;
+    return;
+  }
+  wrap.innerHTML = records.map(r => `
+    <div class="compare-row">
+      <div class="compare-row-main">
+        <div class="compare-hotel">
+          <span class="compare-name">${escapeHtml(r.hotelName)}</span>
+          ${r.city ? `<span class="compare-city">${escapeHtml(r.city)}</span>` : ''}
+        </div>
+        <div class="compare-meta">${r.savedAt}${r.priceRange ? ' · ' + escapeHtml(r.priceRange) : ''}</div>
+      </div>
+      <div class="compare-row-scores">
+        <div class="compare-score-block">
+          <span class="compare-score-num">${r.points}</span>
+          <span class="compare-score-unit">/ 100</span>
+        </div>
+        <span class="verdict ${r.level==='不推荐'?'low':r.level==='中性'?'mid':'high'}" style="font-size:11px;padding:3px 8px;">${r.level}</span>
+        <span class="compare-value-label">${r.valueLabel}</span>
+      </div>
+      <button class="compare-delete" onclick="deleteCompareRecord(${r.id})" title="删除此记录">×</button>
+    </div>
+  `).join('');
+}
+
+/*
+ * positionScoreElements()
+ * – Positions tick numbers precisely above the slider thumb travel range
+ * – Shows a single active label below the thumb, clamped to not overflow
+ */
+function getThumbR() {
+  return navigator.userAgent.toLowerCase().includes('firefox') ? 8.5 : 8;
+}
+
+function getThumbLeftPx(slider) {
+  const trackW = slider.getBoundingClientRect().width;
+  const thumbR = getThumbR();
+  const ratio = (parseFloat(slider.value) - parseFloat(slider.min)) /
+                (parseFloat(slider.max) - parseFloat(slider.min));
+  return thumbR + ratio * (trackW - 2 * thumbR);
+}
+
+function getNearestAnchor(val) {
+  const anchors = [1, 3, 5];
+  return anchors.reduce((a, b) => Math.abs(b - val) < Math.abs(a - val) ? b : a);
+}
+
+function updateActiveLabel(grid, slider) {
+  const trackW = slider.getBoundingClientRect().width;
+  if (!trackW) return;
+
+  const thumbR  = getThumbR();
+  const val     = parseFloat(slider.value);
+  const min     = parseFloat(slider.min);
+  const max     = parseFloat(slider.max);
+  const ratio   = (val - min) / (max - min);
+  const thumbPx = thumbR + ratio * (trackW - 2 * thumbR);
+
+  const label = grid.querySelector('.score-active-label');
+  if (!label) return;
+
+  // Set text first
+  const nearestKey = getNearestAnchor(val);
+  label.textContent = grid.getAttribute('data-anchor-' + nearestKey) || '';
+
+  // Edge threshold: within this many px of each edge, switch alignment
+  const edgeThreshold = trackW * 0.22; // ~22% from each edge
+
+  if (thumbPx <= edgeThreshold) {
+    // Left zone: left edge of label anchored to thumb, text flows right
+    label.style.left      = (thumbPx / trackW * 100).toFixed(2) + '%';
+    label.style.right     = 'auto';
+    label.style.transform = 'none';
+    label.style.textAlign = 'left';
+  } else if (thumbPx >= trackW - edgeThreshold) {
+    // Right zone: right edge of label anchored to thumb, text flows left
+    // Use translateX(-100%) so the right edge sits at thumbPx — no overflow
+    label.style.left      = (thumbPx / trackW * 100).toFixed(2) + '%';
+    label.style.right     = 'auto';
+    label.style.transform = 'translateX(-100%)';
+    label.style.textAlign = 'right';
+  } else {
+    // Centre zone: centre label on thumb
+    label.style.left      = (thumbPx / trackW * 100).toFixed(2) + '%';
+    label.style.right     = 'auto';
+    label.style.transform = 'translateX(-50%)';
+    label.style.textAlign = 'center';
+  }
+}
+
+function positionScoreElements() {
+  document.querySelectorAll('.score-grid').forEach(grid => {
+    const slider = grid.querySelector('input[type="range"]');
+    if (!slider) return;
+    const trackW = slider.getBoundingClientRect().width;
+    if (!trackW) return;
+
+    const min    = parseFloat(slider.min) || 1;
+    const max    = parseFloat(slider.max) || 5;
+    const thumbR = getThumbR();
+
+    // Position ticks
+    const ticksWrap = grid.querySelector('.score-tick-row-inner');
+    if (ticksWrap) {
+      ticksWrap.querySelectorAll('.score-tick').forEach(tick => {
+        const val   = parseFloat(tick.dataset.val);
+        const ratio = (val - min) / (max - min);
+        const xPct  = ((thumbR + ratio * (trackW - 2 * thumbR)) / trackW * 100).toFixed(3);
+        tick.style.left = xPct + '%';
+      });
+    }
+
+    // Update active label
+    updateActiveLabel(grid, slider);
+  });
+}
+
+function render(shouldAnimate = true) {
+  buildProgress();
+  refreshSummary();
+  const meta = stageMeta();
+  document.getElementById('heroTitle').textContent = meta.title;
+  document.getElementById('heroDesc').textContent = meta.desc;
+  document.getElementById('heroHint').textContent = meta.hint;
+  document.getElementById('summaryStrip').style.display = (currentStage <= 2 || currentStage === getResultStage()) ? 'none' : 'grid';
+  document.getElementById('heroSection').style.display = (currentStage <= 2) ? 'none' : 'block';
+
+  if (currentStage === 0) {
+    renderCoverStage();
+  } else {
+    document.body.style.overflow = '';
+    if (currentStage === 1) {
+      renderModeStage();
+    } else if (currentStage === 2) {
+      renderContextStage();
+    } else if (currentStage >= DIMENSION_STAGE_START && currentStage <= getDimensionStageEnd()) {
+      renderDimensionStage();
+    } else if (currentStage === getRiskStage()) {
+      renderRiskStage();
+    } else if (currentStage === getValueStage()) {
+      renderValueStage();
+    } else {
+      renderResultStage();
+    }
+  }
+
+  const host = document.getElementById('pageHost');
+  const shell = host.firstElementChild;
+  if (shell && shouldAnimate) {
+    shell.classList.remove('stage-shell-enter');
+    void shell.offsetWidth;
+    shell.classList.add('stage-shell-enter');
+  }
+}
+
+function renderWithTransition() {
+  const host = document.getElementById('pageHost');
+  const currentView = host.firstElementChild;
+  if (!currentView) {
+    render();
+    return;
+  }
+  currentView.classList.remove('stage-shell-enter');
+  currentView.classList.add('stage-shell-exit');
+  setTimeout(() => {
+    render();
+    // After DOM settles, position score elements precisely
+    requestAnimationFrame(() => requestAnimationFrame(positionScoreElements));
+  }, 140);
+}
+
+render();
+// Position on initial load
+requestAnimationFrame(() => requestAnimationFrame(positionScoreElements));
+// Reposition on window resize
+window.addEventListener('resize', positionScoreElements);
+
+/* ─── 进度自动保存与恢复 ───────────────────────────────────────────
+   保存时机：每次切换页面（goNext / goPrev）
+   恢复时机：页面加载时，检测到草稿则提示恢复
+   键名与对比记录分开，互不干扰
+─────────────────────────────────────────────────────────────────── */
+const DRAFT_KEY = 'staylens_draft';
+
+function saveDraft() {
+  // 只在进入评价流程后才保存（stage > 0），封面不保存
+  if (currentStage === 0) return;
+  try {
+    const draft = {
+      savedAt: Date.now(),
+      currentStage,
+      // 只序列化可安全 JSON 化的 state 字段
+      state: {
+        modeSetup: state.modeSetup,
+        context: state.context,
+        outputMode: state.outputMode,
+        writingStyle: state.writingStyle,
+        riskNote: state.riskNote,
+        noteMemorable: state.noteMemorable,
+        noteDissatisfied: state.noteDissatisfied,
+        noteOneLine: state.noteOneLine,
+        noteRevisit: state.noteRevisit,
+        noteOther: state.noteOther,
+        valueChoice: state.valueChoice,
+        uiExpanded: state.uiExpanded,
+      }
+    };
+    // 维度分数
+    schema.forEach(dim => dim.items.forEach(item => {
+      draft.state[item.id] = state[item.id];
+    }));
+    // 价值子项
+    Object.keys(VALUE_SUBITEMS).forEach(id => { draft.state[id] = state[id]; });
+    // 溢价条件
+    Object.keys(PREMIUM_CONDITIONS).forEach(id => { draft.state[id] = state[id]; });
+    // 风险选项
+    [...fatalOptions, ...structuralOptions, ...layoutDetailOptions,
+     ...expectationOptions, ...minorOptions, ...premiumOptions].forEach(([id]) => {
+      draft.state[id] = state[id];
+    });
+    Object.values(riskDetailMap).flat().forEach(([id]) => { draft.state[id] = state[id]; });
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+  } catch(e) { /* 存储失败静默处理 */ }
+}
+
+function clearDraft() {
+  try { localStorage.removeItem(DRAFT_KEY); } catch(e) {}
+}
+
+function restoreDraft(draft) {
+  try {
+    Object.assign(state, draft.state);
+    // 恢复 visitedDims：根据保存时的 stage 重建已访问集合
+    visitedDims.clear();
+    const dims = getVisibleDimensions();
+    const restoredStage = draft.currentStage;
+    if (restoredStage >= DIMENSION_STAGE_START) {
+      // 已经过了维度评分阶段或正在其中
+      // 把已完成的维度（当前 stage 之前的）全部标记为已访问
+      const completedCount = restoredStage >= getRiskStage()
+        ? dims.length  // 风险页及之后：所有维度都已访问
+        : restoredStage - DIMENSION_STAGE_START; // 正在某个维度：之前的都已访问
+      dims.forEach((dim, idx) => {
+        if (idx < completedCount) visitedDims.add(dim.id);
+      });
+    }
+    currentStage = restoredStage;
+    render();
+    requestAnimationFrame(() => requestAnimationFrame(positionScoreElements));
+  } catch(e) { console.error('草稿恢复失败', e); }
+}
+
+// 页面加载时检测草稿
+(function checkDraft() {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    if (!raw) return;
+    const draft = JSON.parse(raw);
+    if (!draft || !draft.savedAt || !draft.currentStage) return;
+    // 超过 7 天的草稿自动丢弃
+    if (Date.now() - draft.savedAt > 7 * 24 * 60 * 60 * 1000) {
+      clearDraft();
+      return;
+    }
+    const hotelName = (draft.state && draft.state.context && draft.state.context.hotelName)
+      ? `「${draft.state.context.hotelName}」` : '';
+    const savedTime = new Date(draft.savedAt).toLocaleString('zh-CN', {
+      month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+    if (confirm(`检测到未完成的评价${hotelName}（${savedTime}），是否继续上次进度？`)) {
+      restoreDraft(draft);
+    } else {
+      clearDraft();
+    }
+  } catch(e) {}
+})();
+
+// 在 goNext / goPrev 时自动保存
+const _origGoNext = goNext;
+goNext = function() {
+  _origGoNext();
+  saveDraft();
+};
+const _origGoPrev = goPrev;
+goPrev = function() {
+  _origGoPrev();
+  saveDraft();
+};
+
+// 到达结果页时清除草稿（已完成）
+const _origRenderResultStage = renderResultStage;
+renderResultStage = function() {
+  _origRenderResultStage();
+  clearDraft();
+};
+</script>
+</body>
+</html>
